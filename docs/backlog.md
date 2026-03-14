@@ -1,0 +1,8 @@
+# Backlog of project work
+- DR - Dawid Robak
+- KS - Kacper Sułkowski
+
+## Week: 2026-03-10 to 2026-03-17
+- (DR) Created repo on git.
+- (DR) Wrote project folders' struct, libs to use while developing project. 
+- 
