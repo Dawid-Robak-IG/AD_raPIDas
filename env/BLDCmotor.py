@@ -11,6 +11,8 @@ class BLDCMotor:
         self.b = 0.1 # friction
         self.Ke = 0.01 # Back-EMF constant - stała napiecia wstecznego, ile generuje napiecia gdy sie kreci -> V=Ke*w
         self.Kt = 0.01 # torque constant - stała momentowa, jak silnie zamienia elektryczna w mechaniczna
+        self.noise_speed = 0.1
+        self.noise_current = 0.001
 
         self.calc_new_tf()
         self.reset() 
@@ -31,8 +33,14 @@ class BLDCMotor:
         self.current_speed = y_out[-1]
         self.t += dt
         self.change_current_draw(voltage)
+
+        speed_noise = np.random.normal(0, self.noise_speed)
+        current_noise = np.random.normal(0, self.noise_current)
+
+        noisy_speed = self.current_speed + speed_noise
+        noisy_current = self.current_draw + current_noise
         
-        return self.current_speed, self.current_draw
+        return noisy_speed, noisy_current
 
     def calc_den(self):
         self.den = [ (self.L*self.J), (self.R*self.J) + (self.L*self.b), (self.R*self.b)+(self.Ke*self.Kt) ]
