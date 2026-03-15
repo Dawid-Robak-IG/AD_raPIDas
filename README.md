@@ -13,4 +13,4 @@ Reinforcement Learning-based Adaptive PID Controller
 ## Software - Libs to use
 1. Gymnasium - from OpenAI, for general RL problems
 2. Stable Baselines3 - for ready to use algorithms
-3. Control System Library - math model od motor
+3. Control System Library - math model of motor

@@ -6,4 +6,4 @@
 - (DR) Created repo on git.
 - (DR) Wrote project folders' struct, libs to use while developing project. 
 - (DR) Created simple architecture of system.
-- (DR) Writing down task for first week.
+- (DR) Wrote down task for first week.
