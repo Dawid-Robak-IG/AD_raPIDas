@@ -8,3 +8,4 @@
 - (DR) Created simple architecture of system.
 - (DR) Wrote down task for first week.
 - (DR) Added poetry to project
+- (DR) Added class for BLDC -> math model 
