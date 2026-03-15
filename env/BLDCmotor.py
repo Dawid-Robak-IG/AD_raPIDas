@@ -2,17 +2,17 @@ import control as ct
 import numpy as np
 
 class BLDCMotor:
-    def __init__(self):
+    def __init__(self, noise_v = 0.1, noise_current=0.001):
         # V = di + R*i + Ke*w
         # Kt i = J*dw + b*w
         self.R = 1.0
         self.L = 0.02
-        self.J = 0.01 # ineria
-        self.b = 0.1 # friction
-        self.Ke = 0.01 # Back-EMF constant - stała napiecia wstecznego, ile generuje napiecia gdy sie kreci -> V=Ke*w
-        self.Kt = 0.01 # torque constant - stała momentowa, jak silnie zamienia elektryczna w mechaniczna
-        self.noise_speed = 0.1
-        self.noise_current = 0.001
+        self.J = 0.01 # ineria -> kg*m2
+        self.b = 0.01 # friction -> N*m*s
+        self.Ke = 0.1 # Back-EMF constant -> V/(rad/s) - stała napiecia wstecznego, ile generuje napiecia gdy sie kreci -> V=Ke*w
+        self.Kt = 0.1 # torque constant -> N*m/A- stała momentowa, jak silnie zamienia elektryczna w mechaniczna
+        self.noise_speed = noise_v
+        self.noise_current = noise_current
 
         self.calc_new_tf()
         self.reset() 
