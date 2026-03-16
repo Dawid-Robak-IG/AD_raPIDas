@@ -6,8 +6,9 @@ Reinforcement Learning-based Adaptive PID Controller
 - docs - dokumentation, backlog
 - env - models of motors
 - models - trained models
-- src - code
+- src - source code
 - notebooks - data analysis
+- test - test scripts
 
 
 ## Software - Libs to use
