@@ -16,3 +16,6 @@
 - (KS) Validated motor model
 - (KS) Added code comments
 - (KS) Added noise of motor voltage to model
+- (KS) Modified reward function
+- (KS) Added all observation channels to agent env
+- (KS) Updated system arch diagram
