@@ -10,3 +10,6 @@
 - (DR) Added poetry to project
 - (DR) Added class for BLDC -> math model
 - (DR) Added noise for current and velocity of motor
+- (DR) Added PID controller
+- (DR) Added Gymnasium enviroment for BLDC motor in order to create enviroment for future agent
+- (DR) Added tests for every class yet created
