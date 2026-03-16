@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from env.BLDC_motor import BLDCMotor
-from PID_controller import PIDController
+from src.PID_controller import PIDController
 
 def test_pid_controller():
     dt = 0.01
