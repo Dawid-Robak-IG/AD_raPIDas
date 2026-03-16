@@ -37,6 +37,8 @@ class BLDCEnv(gym.Env):
 
         observation = np.array([self.targeted_speed, 0.0, 0.0],dtype=np.float32), {}
         return observation
+    
+
     def step(self,action):
         self.PID.kp,self.PID.ki,self.PID.kd = action
         total_reward=0
@@ -46,7 +48,7 @@ class BLDCEnv(gym.Env):
 
             speed,current = self.motor.sim_step(voltage,self.dt)
             error = abs(self.targeted_speed - speed)
-            total_reward -= (error*self.dt*abs(current))
+            total_reward -= (pow(error,2)*self.dt*abs(current))
         
         terminated = self.motor.t >= 4.0
 
