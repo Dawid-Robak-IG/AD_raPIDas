@@ -15,4 +15,6 @@ class PIDController:
 
         self.prev_error = error
         return np.clip(output, -24, 24) # voltage
-
+    def reset(self):
+        self.integral=0
+        self.prev_error=0

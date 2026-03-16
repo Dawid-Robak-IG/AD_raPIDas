@@ -1,7 +1,7 @@
-import BLDCmotor
+import env.BLDC_motor as BLDC_motor
 import matplotlib.pyplot as plt
 
-motor = BLDCmotor.BLDCMotor()
+motor = BLDC_motor.BLDCMotor()
 time_steps = 200
 dt = 0.01
 
