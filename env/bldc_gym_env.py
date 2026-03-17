@@ -18,6 +18,8 @@ class BLDCEnv(gym.Env):
         self.reward_velocity = reward_velocity
         self.penalty_stall=penalty_stall
 
+        self.previous_err=0
+
         self.PID = PIDController(dt=self.dt)
 
         self.maxKp = 20.0
@@ -73,16 +75,20 @@ class BLDCEnv(gym.Env):
             ################ FUNKCJA CELU ####################
 
             # asymetryczna kara za przekroczenie
-            if self.error > 0:
+            if error > 0:
                 total_reward-=self.penalty_factor_error*pow(error,2)
             else:
                 total_reward -= 1.5*self.penalty_factor_error*pow(error,2)
 
-            # kara za nadmierny prąd
-            total_reward -= self.penalty_factor_current*(current,2)
+            # kara za nadmierne zużycie prądu (nie generację)
+            if current>0:
+                total_reward -= self.penalty_factor_current*(current,2)
 
             # kara za "szarpanie" parametrami
-            action_delta = np.sum(np.square(action - self.last_action))
+            action_arr=np.array(action)
+            last_action_arr=np.array(self.last_action)
+
+            action_delta = np.sum(np.square(action_arr - last_action_arr))
             total_reward-=self.penalty_factor_action*action_delta
 
             # kara za stall
