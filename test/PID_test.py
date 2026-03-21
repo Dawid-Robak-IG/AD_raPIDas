@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from env.BLDC_motor import BLDCMotor
 from src.PID_controller import PIDController
+import os
 
 def test_pid_controller():
     dt = 0.01
@@ -25,6 +26,10 @@ def test_pid_controller():
         history_speed.append(measured_speed)
         history_current.append(measured_current)
         history_time.append(i*dt)
+    
+    if os.environ.get('CI'):
+        print("Simulation finished. Skipping visualization.")
+        return
 
     plt.figure(figsize=(12,5))
 

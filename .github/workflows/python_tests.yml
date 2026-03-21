@@ -1,0 +1,28 @@
+name: Python Checks
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Poetry & Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+        poetry install  # To zainstaluje numpy, matplotlib i inne z Twojego pyproject.toml
+
+    - name: Run all tests in folder
+      run: |
+        # Dodatkowo naprawiłem wcięcie w pętli for
+        for file in test/*.py; do
+          poetry run python "$file" || exit 1
+        done
