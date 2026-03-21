@@ -24,3 +24,4 @@
 - (DR) Extracted reward func in gym env
 - (DR) Created train file
 - (DR) Chosen PPO algorithm for training
+- (DR) Created test for model

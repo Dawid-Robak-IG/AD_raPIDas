@@ -5,12 +5,16 @@ import os
 from colorama import Fore 
 import colorama
 from datetime import datetime
+import sys
 
-def train():
+def train(name=""):
     colorama.init(autoreset=True)
     os.makedirs("models",exist_ok=True)
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    run_name  = f"bldc_pid_tuner_{timestamp}"
+    if name=="":
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+        run_name  = f"bldc_pid_tuner_{timestamp}"
+    else:
+        run_name  = f"bldc_pid_tuner_{name}"
     log_dir = "./ppo_bldc_logs/"
 
     env = BLDCEnv()
@@ -26,4 +30,7 @@ def train():
     print(Fore.GREEN + f"Model saved: models/{run_name}")
 
 if __name__ == "__main__":
-    train()
+    if(len(sys.argv)>1):
+        train(sys.argv[1])
+    else:
+        train()
