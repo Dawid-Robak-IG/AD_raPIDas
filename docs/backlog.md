@@ -25,3 +25,4 @@
 - (DR) Created train file
 - (DR) Chosen PPO algorithm for training
 - (DR) Created test for model
+- (DR) Added CI, changed test files for CI

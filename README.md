@@ -15,3 +15,11 @@ Reinforcement Learning-based Adaptive PID Controller
 1. Gymnasium - from OpenAI, for general RL problems
 2. Stable Baselines3 - for ready to use algorithms
 3. Control System Library - math model of motor
+
+
+## Model
+In order to check trainig process run:
+```bash
+    tensorboard --log-dir /ppo_bldc_logs/
+```
+And then go to shared link

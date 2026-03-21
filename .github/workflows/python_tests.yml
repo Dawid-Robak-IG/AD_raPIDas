@@ -21,8 +21,9 @@ jobs:
         poetry install  # To zainstaluje numpy, matplotlib i inne z Twojego pyproject.toml
 
     - name: Run all tests in folder
+      env:
+        PYTHONPATH: ${{ github.workspace }}
       run: |
-        # Dodatkowo naprawiłem wcięcie w pętli for
         for file in test/*.py; do
           poetry run python "$file" || exit 1
         done
