@@ -19,3 +19,8 @@
 - (KS) Modified reward function
 - (KS) Added all observation channels to agent env
 - (KS) Updated system arch diagram
+
+## Week: 2026-03-18 to 2026-03-25
+- (DR) Extracted reward func in gym env
+- (DR) Created train file
+- (DR) Chosen PPO algorithm for training

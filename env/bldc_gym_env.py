@@ -57,13 +57,15 @@ class BLDCEnv(gym.Env):
         self.PID.kd          # aktualne Kd
     ], dtype=np.float32)
         return observation, {}
-    
+
     #krok EJAJ
     def step(self,action):
         #zastosowanie akcji EJAJ
-        self.last_action=[self.PID.kd,self.PID.ki, self.PID.kd]
+        self.last_action=[self.PID.kp,self.PID.ki, self.PID.kd]
         self.PID.kp,self.PID.ki,self.PID.kd = action
         total_reward=0
+
+        total_reward-= self.jitter_penalty(action)
 
         # 1 krok EJAJ = 10 kroków modelu
         for i in range(10):
@@ -71,35 +73,7 @@ class BLDCEnv(gym.Env):
 
             speed,current = self.motor.sim_step(voltage,self.dt)
             error = self.targeted_speed - speed
-
-            ################ FUNKCJA CELU ####################
-
-            # asymetryczna kara za przekroczenie
-            if error > 0:
-                total_reward-=self.penalty_factor_error*pow(error,2)
-            else:
-                total_reward -= 1.5*self.penalty_factor_error*pow(error,2)
-
-            # kara za nadmierne zużycie prądu (nie generację)
-            if current>0:
-                total_reward -= self.penalty_factor_current*(current,2)
-
-            # kara za "szarpanie" parametrami
-            action_arr=np.array(action)
-            last_action_arr=np.array(self.last_action)
-
-            action_delta = np.sum(np.square(action_arr - last_action_arr))
-            total_reward-=self.penalty_factor_action*action_delta
-
-            # kara za stall
-            if abs(current) > 5.0 and speed < 0.1:
-                total_reward -= self.penalty_stall # Kara za smażenie uzwojeń
-
-            #nagroda za poprawne sterowanie
-            if(error<=self.targeted_speed*0.05):
-                total_reward+=self.reward_velocity
-
-            ##################################################
+            total_reward += self.aim_func(error,current,speed)
 
         #sprawdzenie czasu eksperymentu        
         terminated = self.motor.t >= 4.0
@@ -112,3 +86,34 @@ class BLDCEnv(gym.Env):
         #zwracanie danych do ejaj
         obs = np.array([error, err_dif,self.targeted_speed,speed, current, self.PID.kp, self.PID.ki,self.PID.kd],dtype=np.float32)
         return obs, total_reward, terminated, False, {}
+    
+    def jitter_penalty(self,action):
+        # kara za "szarpanie" parametrami
+        action_arr=np.array(action)
+        last_action_arr=np.array(self.last_action)
+
+        action_delta = np.sum(np.square(action_arr - last_action_arr))
+        return self.penalty_factor_action*action_delta
+    def aim_func(self, error, current, speed):
+        ################ FUNKCJA CELU ####################
+        total_reward = 0
+
+        # asymetryczna kara za przekroczenie
+        if error > 0:
+            total_reward-=self.penalty_factor_error*pow(error,2)
+        else:
+            total_reward -= 1.5*self.penalty_factor_error*pow(error,2)
+
+        # kara za nadmierne zużycie prądu (nie generację)
+        if current>0:
+            total_reward -= self.penalty_factor_current*pow(current,2)
+
+        # kara za stall
+        if abs(current) > 5.0 and speed < 0.1:
+            total_reward -= self.penalty_stall # Kara za smażenie uzwojeń
+
+        #nagroda za poprawne sterowanie
+        if(error<=self.targeted_speed*0.05):
+            total_reward+=self.reward_velocity
+
+        return total_reward
