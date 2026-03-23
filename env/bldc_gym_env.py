@@ -28,15 +28,41 @@ class BLDCEnv(gym.Env):
 
         #definicja przestrzeni akcji EJAJ
         self.action_space = spaces.Box(
-            low = np.array([0.0,0.0,0.0]).astype(np.float32),
-            high = np.array([self.maxKp,self.maxKi,self.maxKd]).astype(np.float32),
-            dtype = np.float32
+            low = np.array([
+                0.0, # Kp
+                0.0, # Ki
+                0.0  # Kd
+                ]).astype(np.float32),
+            high = np.array([
+                self.maxKp, # Kp
+                self.maxKi, # Ki
+                self.maxKd  # Kd
+            ]).astype(np.float32),
+        dtype = np.float32
         )
 
         #definicja przestrzeni obserwacji 
         self.observation_space = spaces.Box(
-            low = np.array([-100.0,-100.0,-100.0,-100.0, -100.0,0.0,0.0,0.0]).astype(np.float32), # error, error', target, velocity, current, K_PID(n)
-            high = np.array([100.0,100.0,100.0,100.0,100.0,self.maxKp, self.maxKi,self.maxKd]).astype(np.float32),
+            low = np.array([
+                -100.0, # error (cel - 0)
+                -100.0, # error_dif
+                -100.0, # target
+                -100.0, # velocity
+                -100.0, # current
+                0.0,    # Kp
+                0.0,    # Ki
+                0.0     # Kd
+            ]).astype(np.float32),
+            high = np.array([
+                100.0, # error (cel - 0)
+                100.0, # error_dif
+                100.0, # target
+                100.0, # velocity
+                100.0, # current
+                self.maxKp, # Kp
+                self.maxKi, # Ki
+                self.maxKd  # Kd
+            ]).astype(np.float32),
             dtype=np.float32
         )
 
@@ -46,16 +72,17 @@ class BLDCEnv(gym.Env):
         self.motor.reset()
         self.PID.reset()
 
+
         observation = np.array([
-        self.targeted_speed, # error (cel - 0)
-        0.0,                 # error_dif
-        self.targeted_speed, # target
-        0.0,                 # velocity
-        0.0,                 # current
-        self.PID.kp,         # aktualne Kp (prawdopodobnie 0)
-        self.PID.ki,         # aktualne Ki
-        self.PID.kd          # aktualne Kd
-    ], dtype=np.float32)
+            self.targeted_speed, # error (cel - 0)
+            0.0,                 # error_dif
+            self.targeted_speed, # target
+            0.0,                 # velocity
+            0.0,                 # current
+            self.PID.kp,         # aktualne Kp
+            self.PID.ki,         # aktualne Ki
+            self.PID.kd          # aktualne Kd
+        ], dtype=np.float32)
         return observation, {}
 
     #krok EJAJ

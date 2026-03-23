@@ -26,3 +26,6 @@
 - (DR) Chosen PPO algorithm for training
 - (DR) Created test for model
 - (DR) Added CI, changed test files for CI
+- (KS) Changed PID integration method
+- (KS) Added PID anti-windup clipping
+- (KS) Changed PID output limit to object parameter
