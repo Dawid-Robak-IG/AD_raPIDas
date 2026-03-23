@@ -15,7 +15,7 @@ class BLDCMotor:
         self.noise_current = noise_current
         self.noise_voltage = noise_voltage
 
-        self.calc_new_tf()
+        self.calc_new_ss()
         self.reset() 
 
     #symulacja kroku o czasie dt
@@ -37,10 +37,9 @@ class BLDCMotor:
 
         #aktualizacja stanu obiektu (pythona, nie dynamicznego :D)
         self.x_state=x_out[:,-1]
-        self.current_speed = y_out[-1]
+        self.current_speed = y_out[1,-1] # bezpośrednio z wyjścia obiektu (patrz macierz C)
+        self.current_draw = y_out[0,-1] # bezpośrednio z wyjścia obiektu
         self.t += dt
-        self.change_current_draw(voltage)
-        #self.current_draw = self.x_state[0] <- alternatywna wersja, prąd w wektorze stanu
 
         #zaszumianie wyjść
         speed_noise = np.random.normal(0, self.noise_speed)
@@ -50,10 +49,6 @@ class BLDCMotor:
         noisy_current = self.current_draw + current_noise
         
         return noisy_speed, noisy_current
-
-    #wynaczanie mianownika transmitacji silnika 
-    def calc_den(self):
-        self.den = [ (self.L*self.J), (self.R*self.J) + (self.L*self.b), (self.R*self.b)+(self.Ke*self.Kt) ]
     
     #resetowanie stanu silnika
     def reset(self):
@@ -61,42 +56,29 @@ class BLDCMotor:
         self.current_speed = 0
         self.current_draw = 0
         self.x_state = np.zeros(self.system.nstates)
-    
-    #wyliczanie poboru prądu z prędkości obrotowej
-    def change_current_draw(self, voltage):
-        self.current_draw = (voltage - self.Ke*self.current_speed) / self.R
 
-    #przekształcenie transmitancji do równania stanu
-    def calc_new_tf(self):
-        num = [self.Kt]
-        self.calc_den()
-        tf_sys = ct.tf(num, self.den)
-        self.system = ct.tf2ss(tf_sys)
+    # wyznaczanie opisu w przestrzeni stanu
+    def calc_new_ss(self):
+        # alternatywna wersja wyznaczenia macierzy równania stanu
+        # mamy jawnie prąd w wektorze stanu
+        # x = [i , w]
+        # di/dt = -R/L * i - Ke/L * w + 1/L * V
+        # dw/dt =  Kt/J * i - b/J  * w
+        A = [
+            [-self.R/self.L, -self.Ke/self.L],
+            [ self.Kt/self.J, -self.b/self.L ]
+        ]
 
-    # alternatywna wersja wyznaczenia macierzy równania stanu
-    # mamy jawnie prąd w wektorze stanu
-    # def calc_physical_ss(self):
-    # # Macierz A: Jak stany wpływają na siebie nawzajem
-    # # di/dt = -R/L * i - Ke/L * w + 1/L * V
-    # # dw/dt =  Kt/J * i - b/J  * w
-    # A = [
-    #     [-self.R/self.L, -self.Ke/self.L],
-    #     [ self.Kt/self.J, -self.b/self.L ]
-    # ]
-    
-    # # Macierz B: Jak wejście (Voltage) wpływa na prąd i prędkość
-    # B = [
-    #     [1/self.L],
-    #     [0]
-    # ]
-    
-    # # Macierz C: Co chcemy "widzieć" na wyjściu (np. obie wartości)
-    # # Tu mówimy: "Wypluj mi i prąd, i prędkość"
-    # C = [
-    #     [1, 0], # Stan 0 (prąd)
-    #     [0, 1]  # Stan 1 (prędkość)
-    # ]
-    
-    # D = [[0], [0]] # Brak bezpośredniego przejścia V na wyjście
+        B = [
+            [1/self.L],
+            [0]
+        ]
+        
+        C = [
+            [1, 0], # Stan 0 (prąd)
+            [0, 1]  # Stan 1 (prędkość)
+        ]
+        
+        D = [[0], [0]] # Brak bezpośredniego przejścia V na wyjście
 
-    # self.system = ct.ss(A, B, C, D)
+        self.system = ct.ss(A, B, C, D)

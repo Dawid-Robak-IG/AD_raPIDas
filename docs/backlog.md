@@ -29,3 +29,5 @@
 - (KS) Changed PID integration method
 - (KS) Added PID anti-windup clipping
 - (KS) Changed PID output limit to object parameter
+- (KS) Changed way of calculating ss description from tf transformation to explicite matrixes 
+- (KS) Replacing calculating current draw with reading it from ss

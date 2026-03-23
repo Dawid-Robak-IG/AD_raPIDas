@@ -4,7 +4,7 @@ import os
 
 def bldc_test():
     motor = BLDC_motor.BLDCMotor()
-    time_steps = 200
+    time_steps = 600
     dt = 0.01
 
     speeds = []
