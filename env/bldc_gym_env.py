@@ -5,12 +5,14 @@ from env.BLDC_motor import BLDCMotor
 from src.PID_controller import PIDController
 
 class BLDCEnv(gym.Env):
-    def __init__(self, penalty_factor_error=1, penalty_factor_current=1, penalty_factor_action=0.2, penalty_stall=20,reward_velocity=10):
+    def __init__(self, penalty_factor_error=100, penalty_factor_current=1, penalty_factor_action=1, penalty_stall=200,reward_velocity=1000000):
         super(BLDCEnv, self).__init__()
 
         self.motor = BLDCMotor()
-        self.dt = 0.01
-        self.targeted_speed = 4.0
+        self.dt = 0.001
+        self.total_time = 20
+        self.targeted_speed = 800.0
+        self.load = 0.1
 
         self.penalty_factor_error=penalty_factor_error
         self.penalty_factor_current=penalty_factor_current
@@ -22,21 +24,21 @@ class BLDCEnv(gym.Env):
 
         self.PID = PIDController(dt=self.dt)
 
-        self.maxKp = 20.0
-        self.maxKi = 10.0
-        self.maxKd = 2.0
+        self.maxKp = 1.0
+        self.maxTi = 100.0
+        self.maxTd = 1.0
 
         #definicja przestrzeni akcji EJAJ
         self.action_space = spaces.Box(
             low = np.array([
                 0.0, # Kp
-                0.0, # Ki
-                0.0  # Kd
+                0.01, # Ti
+                0.0  # Td
                 ]).astype(np.float32),
             high = np.array([
                 self.maxKp, # Kp
-                self.maxKi, # Ki
-                self.maxKd  # Kd
+                self.maxTi, # Ti
+                self.maxTd  # Td
             ]).astype(np.float32),
         dtype = np.float32
         )
@@ -44,24 +46,24 @@ class BLDCEnv(gym.Env):
         #definicja przestrzeni obserwacji 
         self.observation_space = spaces.Box(
             low = np.array([
-                -100.0, # error (cel - 0)
-                -100.0, # error_dif
-                -100.0, # target
-                -100.0, # velocity
-                -100.0, # current
-                0.0,    # Kp
-                0.0,    # Ki
-                0.0     # Kd
+                -10, # error (cel - 0)
+                -10, # error_dif
+                -10, # target
+                -10, # velocity
+                -10, # current
+                0.0,    # kp
+                0.01,    # Ti
+                0.0     # Td
             ]).astype(np.float32),
             high = np.array([
-                100.0, # error (cel - 0)
-                100.0, # error_dif
-                100.0, # target
-                100.0, # velocity
-                100.0, # current
-                self.maxKp, # Kp
-                self.maxKi, # Ki
-                self.maxKd  # Kd
+                10, # error (cel - 0)
+                10, # error_dif
+                10, # target
+                10, # velocity
+                10, # current
+                self.maxKp, # kp
+                self.maxTi, # Ti
+                self.maxTd  # Td
             ]).astype(np.float32),
             dtype=np.float32
         )
@@ -73,37 +75,40 @@ class BLDCEnv(gym.Env):
         self.PID.reset()
 
 
+        # !!! dzielenie /1000 żeby zapewnić zakres -10 - 10
         observation = np.array([
-            self.targeted_speed, # error (cel - 0)
+            self.targeted_speed/1000, # error (cel - 0)
             0.0,                 # error_dif
-            self.targeted_speed, # target
+            self.targeted_speed/1000, # target
             0.0,                 # velocity
             0.0,                 # current
             self.PID.kp,         # aktualne Kp
-            self.PID.ki,         # aktualne Ki
-            self.PID.kd          # aktualne Kd
+            self.PID.Ti,         # aktualne Ti
+            self.PID.Td          # aktualne Td
         ], dtype=np.float32)
         return observation, {}
 
     #krok EJAJ
     def step(self,action):
         #zastosowanie akcji EJAJ
-        self.last_action=[self.PID.kp,self.PID.ki, self.PID.kd]
-        self.PID.kp,self.PID.ki,self.PID.kd = action
+        self.last_action=[self.PID.kp,self.PID.Ti, self.PID.Td]
+        self.PID.kp,self.PID.Ti,self.PID.Td = action
         total_reward=0
 
         total_reward-= self.jitter_penalty(action)
 
-        # 1 krok EJAJ = 10 kroków modelu
-        for i in range(10):
+        # 1 krok EJAJ = 100 kroków modelu
+        for i in range(100):
             voltage = self.PID.get_action(self.targeted_speed, self.motor.current_speed)
 
-            speed,current = self.motor.sim_step(voltage,self.dt)
+            speed,current = self.motor.sim_step(voltage,self.load,self.dt)
             error = self.targeted_speed - speed
             total_reward += self.aim_func(error,current,speed)
 
+        # uśrednianie żeby uniknąć wielkich liczb 
+        total_reward = total_reward/1000000
         #sprawdzenie czasu eksperymentu        
-        terminated = self.motor.t >= 4.0
+        terminated = self.motor.t >= self.total_time
 
         #wyliczanie uchybów i różnicy
         error = self.targeted_speed - speed
@@ -111,7 +116,8 @@ class BLDCEnv(gym.Env):
         self.previous_err = error
 
         #zwracanie danych do ejaj
-        obs = np.array([error, err_dif,self.targeted_speed,speed, current, self.PID.kp, self.PID.ki,self.PID.kd],dtype=np.float32)
+        # !!! dzielenie /1000 żeby zapewnić zakres -10 - 10
+        obs = np.array([error/1000, err_dif/1000,self.targeted_speed/1000,speed/1000, current/100, self.PID.kp, self.PID.Ti,self.PID.Td],dtype=np.float32)
         return obs, total_reward, terminated, False, {}
     
     def jitter_penalty(self,action):
@@ -129,7 +135,7 @@ class BLDCEnv(gym.Env):
         if error > 0:
             total_reward-=self.penalty_factor_error*pow(error,2)
         else:
-            total_reward -= 1.5*self.penalty_factor_error*pow(error,2)
+            total_reward -= 10*self.penalty_factor_error*pow(error,2)
 
         # kara za nadmierne zużycie prądu (nie generację)
         if current>0:

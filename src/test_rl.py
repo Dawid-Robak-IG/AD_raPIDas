@@ -20,19 +20,19 @@ def test_model(model_name):
     model = PPO.load(model_path)
     obs, _ = env.reset()
 
-    history = {"t": [], "v": [], "target": [], "kp": [], "ki": [], "kd": [], "i": []}
+    history = {"t": [], "v": [], "target": [], "kp": [], "Ti": [], "Td": [], "i": []}
 
     print(Fore.GREEN + f"Launching model: {model_path}...")
-    for step in range(40): # 4 sekundy / 0.1s step = 40 kroków
+    for step in range(1000): # 20 sekundy / 0.1s step = 200 kroków
         action, _ = model.predict(obs, deterministic=True)
         obs, reward, terminated, truncated, info = env.step(action)
         
         history["t"].append(step * 0.1)
-        history["v"].append(obs[3])
-        history["target"].append(obs[2])
+        history["v"].append(obs[3]*1000)
+        history["target"].append(obs[2]*1000)
         history["kp"].append(action[0])
-        history["ki"].append(action[1])
-        history["kd"].append(action[2])
+        history["Ti"].append(action[1])
+        history["Td"].append(action[2])
         
         if terminated: break
 
@@ -44,9 +44,9 @@ def test_model(model_name):
     plt.legend()
     
     plt.subplot(2, 1, 2)
-    plt.plot(history["t"], history["kp"], label="Kp")
-    plt.plot(history["t"], history["ki"], label="Ki")
-    plt.plot(history["t"], history["kd"], label="Kd")
+    plt.plot(history["t"], history["kp"], label="kp")
+    plt.plot(history["t"], history["Ti"], label="Ti")
+    plt.plot(history["t"], history["Td"], label="Td")
     plt.ylabel("PID")
     plt.xlabel("Time[s]")
     plt.legend()
