@@ -1,14 +1,15 @@
 import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt 
-from stable_baselines3 import PPO 
+from stable_baselines3 import PPO, SAC, TD3,DDPG
 from env.bldc_gym_env import BLDCEnv
 import os 
 from colorama import Fore
 import colorama
 import sys
 
-def test_model(model_name):
+def test_model(argv):
+    model_name = argv[1]
     colorama.init(autoreset=True)
     env = BLDCEnv()
 
@@ -17,7 +18,20 @@ def test_model(model_name):
         print(Fore.RED + f"Couldn't find {model_path}")
         return
     
-    model = PPO.load(model_path)
+    if(len(argv)>2):
+        if(argv[2]=="PPO"):
+            model = PPO.load(model_path)
+        elif(argv[2]=="SAC"):
+            model = SAC.load(model_path)
+        elif(argv[2]=="TD3"):
+            model = TD3.load(model_path)
+        elif(argv[2]=="DDPG"):
+            model = DDPG.load(model_path)
+        else:
+            print(Fore.YELLOW + "Didn't get any right name for algorithm, continuing with PPO...")
+            model = PPO.load(model_path)
+    else:
+        model = PPO.load(model_path)
     obs, _ = env.reset()
 
     history = {"t": [], "v": [], "target": [], "kp": [], "Ti": [], "Td": [], "i": []}
@@ -58,5 +72,5 @@ if __name__ == "__main__":
     if(len(sys.argv)<2):
         print(Fore.RED + f"No name for model given, returning...")
         exit()
-    test_model(sys.argv[1])
+    test_model(sys.argv)
     

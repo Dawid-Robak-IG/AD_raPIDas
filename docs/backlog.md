@@ -41,3 +41,7 @@
 - <span style="color: blue;">(KS)</span> Changed obs and action limits, to match -10 to 10 range
 - <span style="color: blue;">(KS)</span> Added reward scaling (to avoid big numbers)
 - <span style="color: blue;">(KS)</span> Adjusted reward factors (high accuracy reward and error penalty) - after training with previous values result was highly oscilated (constant +-10%)
+- <span style="color: green;">(DR)</span> Added colours for backlog
+- <span style="color: green;">(DR)</span> Made step depend on dt in env
+- <span style="color: green;">(DR)</span> Did some research about rl algorithms
+- <span style="color: green;">(DR)</span> Added possibility of choosing algorithm while training or testing

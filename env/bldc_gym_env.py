@@ -98,7 +98,7 @@ class BLDCEnv(gym.Env):
         total_reward-= self.jitter_penalty(action)
 
         # 1 krok EJAJ = 100 kroków modelu
-        for i in range(100):
+        for i in range(self.dt * 100000):
             voltage = self.PID.get_action(self.targeted_speed, self.motor.current_speed)
 
             speed,current = self.motor.sim_step(voltage,self.load,self.dt)
