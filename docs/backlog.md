@@ -47,3 +47,8 @@
 - <span style="color: green;">(DR)</span> Added possibility of choosing algorithm while training or testing
 
 ## Week: 2026-04-01 to 2026-04-14
+- <span style="color: green;">(DR)</span> Changed aim func to be faster in calc (sum and then calc not calc in for)
+- <span style="color: green;">(DR)</span> Changed sim step to be faster in calc (changed from control force resp to discrete)
+- <span style="color: green;">(DR)</span> Added way of training with dynamic SP
+- <span style="color: green;">(DR)</span> Made way of training on many CPUs
+- <span style="color: green;">(DR)</span> Made BOM

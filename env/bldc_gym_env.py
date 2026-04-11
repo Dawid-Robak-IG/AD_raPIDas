@@ -8,8 +8,8 @@ class BLDCEnv(gym.Env):
     def __init__(self, penalty_factor_error=100, penalty_factor_current=1, penalty_factor_action=1, penalty_stall=200,reward_velocity=1000000):
         super(BLDCEnv, self).__init__()
 
-        self.motor = BLDCMotor()
         self.dt = 0.001
+        self.motor = BLDCMotor(dt = self.dt)
         self.total_time = 20
         self.targeted_speed = 800.0
         self.load = 0.1
@@ -97,16 +97,46 @@ class BLDCEnv(gym.Env):
 
         total_reward-= self.jitter_penalty(action)
 
-        # 1 krok EJAJ = 100 kroków modelu
-        for i in range( int(self.dt * 100000) ):
+        sum_sq_error_pos = 0   # dla błędu > 0
+        sum_sq_error_neg = 0   # dla błędu <= 0 (overshoot)
+        sum_sq_current = 0
+        stall_steps = 0
+        in_zone_steps = 0
+        
+        # 1 krok RL = 100 kroków modelu
+        num_substeps = int(self.dt * 100000) # czyli 100
+
+        for _ in range(num_substeps):
             voltage = self.PID.get_action(self.targeted_speed, self.motor.current_speed)
-
-            speed,current = self.motor.sim_step(voltage,self.load,self.dt)
+            speed, current = self.motor.sim_step(voltage, self.load)
+            
             error = self.targeted_speed - speed
-            total_reward += self.aim_func(error,current,speed)
+            
+            if error > 0:
+                sum_sq_error_pos += error * error
+            else:
+                sum_sq_error_neg += error * error
+                
+            if current > 0:
+                sum_sq_current += current * current
+                
+            if abs(current) > 5.0 and speed < 0.1:
+                stall_steps += 1
+                
+            if abs(error) <= self.targeted_speed * 0.05:
+                in_zone_steps += 1
 
-        # uśrednianie żeby uniknąć wielkich liczb 
-        total_reward = total_reward/1000000
+        # Ostateczne wyliczenie nagrody (RAZ na krok agenta)
+        reward = 0
+        reward -= self.penalty_factor_error * sum_sq_error_pos
+        reward -= 10 * self.penalty_factor_error * sum_sq_error_neg
+        reward -= self.penalty_factor_current * sum_sq_current
+        reward -= stall_steps * (self.penalty_stall / num_substeps)
+        reward += in_zone_steps * (self.reward_velocity / num_substeps)
+        reward -= self.jitter_penalty(action)
+
+        # Skalowanie - zamiast /1000000, dobierz tak, by reward był w okolicy -10 do 10
+        total_reward = reward / 1000
         #sprawdzenie czasu eksperymentu        
         terminated = self.motor.t >= self.total_time
 

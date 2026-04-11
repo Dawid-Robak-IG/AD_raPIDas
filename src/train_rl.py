@@ -14,13 +14,28 @@ import random
 MIN_SP = 1.0
 MAX_SP = 1000
 ITERATIONS = 20
+BEAUTIFUL_SP = 800.0
+
+MIN_LOAD = 0.0
+MAX_LOAD = 1.0
+BEAUTIFUL_LOAD = 0.1
 
 
 def calc_new_SP(i=0):
     range_width = (MAX_SP - MIN_SP)/ITERATIONS
     new_min = i*range_width + MIN_SP
     new_max = (i+1)*range_width + MIN_SP
+    return int(random.uniform(new_min, new_max))
+
+def calc_new_load(i=0):
+    range_width = (MAX_LOAD - MIN_LOAD)/ITERATIONS
+    new_min = i*range_width + MIN_LOAD
+    new_max = (i+1)*range_width + MIN_LOAD
     return random.uniform(new_min, new_max)
+
+def calc_new_param():
+    print("DOOPA")
+
 
 def get_model(algorithm, env, model_path=None):
     algorithms = {
@@ -56,7 +71,7 @@ def make_env(rank, seed=0, sp=1.0):
 
 
 
-def train(name="", algorithm="PPO", sp=-1, model_path="", num_cpu=10):
+def train(name="", algorithm="PPO", sp=BEAUTIFUL_SP, load=BEAUTIFUL_LOAD ,model_path="", num_cpu=10):
     colorama.init(autoreset=True)
     os.makedirs("models",exist_ok=True)
     if name=="":

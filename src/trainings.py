@@ -18,7 +18,15 @@ def train_by_model_params():
     a = 0
 
 def train_by_load():
-    a = 0
+    colorama.init(autoreset=True)
+    model_name = "with_dynamic_LOAD"
+    current_model_path = ""
+
+    for i in range(train_rl.ITERATIONS):
+        LOAD = train_rl.calc_new_load(i)
+        print(Fore.GREEN + f"Trainig for LOAD: {LOAD} | i: {i}")
+        train_rl.train(name=model_name, load=LOAD ,model_path=current_model_path)
+        current_model_path = f"models/bldc_pid_tuner_{model_name}.zip"
 
 if __name__ == "__main__":
     if(len(sys.argv)>1):
