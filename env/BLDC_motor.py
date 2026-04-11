@@ -1,14 +1,15 @@
 import control as ct
 import numpy as np
+import env.CONSTS as c
 
 class BLDCMotor:
-    def __init__(self, noise_w = 0.1, noise_I = 0.001, noise_V = 0.001, noise_Tl = 0.001, dt=0.001):
+    def __init__(self, noise_w = 0.1, noise_I = 0.001, noise_V = 0.001, noise_Tl = 0.001, dt=0.001,R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL):
         # V = L*di + R*i + Ke*w - równanie spadku napięcia II prawo Kirchhoffa
         # T = Kt*i = J*dw + b*w - równanie momentu II prawo Newtona
-        self.R = 0.2 # rezystancja uzwojenia [Ohm]
-        self.L = 0.0005 # induktancja uzwojenia [Henr]
+        self.R = R # rezystancja uzwojenia [Ohm]
+        self.L = L # induktancja uzwojenia [Henr]
         self.J = 0.00002 # moment bezwładności [kg*m2]
-        self.b = 0.00001 # wsp. moemntu tarcia [N*m*s]
+        self.b = b # wsp. moemntu tarcia [N*m*s]
         self.Ke = 0.01 # stała wstecznej siły EM -> V/(rad/s) - stała napiecia wstecznego, ile generuje napiecia gdy sie kreci -> V=Ke*w
         self.Kt = 0.01 # stała momentowa -> N*m/A- jak silnie zamienia elektryczna w mechaniczna
         self.noise_w = noise_w

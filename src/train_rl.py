@@ -9,32 +9,25 @@ import colorama
 from datetime import datetime
 import sys
 import random
-
-
-MIN_SP = 1.0
-MAX_SP = 1000
-ITERATIONS = 20
-BEAUTIFUL_SP = 800.0
-
-MIN_LOAD = 0.0
-MAX_LOAD = 1.0
-BEAUTIFUL_LOAD = 0.1
+import env.CONSTS as c
 
 
 def calc_new_SP(i=0):
-    range_width = (MAX_SP - MIN_SP)/ITERATIONS
-    new_min = i*range_width + MIN_SP
-    new_max = (i+1)*range_width + MIN_SP
+    range_width = (c.MAX_SP - c.MIN_SP)/c.ITERATIONS
+    new_min = i*range_width + c.MIN_SP
+    new_max = (i+1)*range_width + c.MIN_SP
     return int(random.uniform(new_min, new_max))
 
 def calc_new_load(i=0):
-    range_width = (MAX_LOAD - MIN_LOAD)/ITERATIONS
-    new_min = i*range_width + MIN_LOAD
-    new_max = (i+1)*range_width + MIN_LOAD
+    range_width = (c.MAX_LOAD - c.MIN_LOAD)/c.ITERATIONS
+    new_min = i*range_width + c.MIN_LOAD
+    new_max = (i+1)*range_width + c.MIN_LOAD
     return random.uniform(new_min, new_max)
 
-def calc_new_param():
-    print("DOOPA")
+def calc_new_param(i, nominal_value, max_val, min_val ,variation_scale=0.05):
+    max_deviation = nominal_value * (variation_scale * (i / c.ITERATIONS))
+    val = random.uniform(nominal_value - max_deviation, nominal_value + max_deviation)
+    return max(min(val, max_val), min_val)
 
 
 def get_model(algorithm, env, model_path=None):
@@ -60,10 +53,11 @@ def get_model(algorithm, env, model_path=None):
         model = algo_class("MlpPolicy", env=env, verbose=1, tensorboard_log=log_dir, device="cpu")
     return model,log_dir
 
-def make_env(rank, seed=0, sp=1.0):
+def make_env(rank, seed=0, sp=c.BEAUTIFUL_SP, load=c.BEAUTIFUL_LOAD, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL):
     def _init():
-        env = BLDCEnv()
+        env = BLDCEnv(R=R,L=L,b=b)
         env.targeted_speed = sp
+        env.load = load
         env.reset(seed=int(seed+rank))
         return env
     set_random_seed(seed)
@@ -71,7 +65,7 @@ def make_env(rank, seed=0, sp=1.0):
 
 
 
-def train(name="", algorithm="PPO", sp=BEAUTIFUL_SP, load=BEAUTIFUL_LOAD ,model_path="", num_cpu=10):
+def train(name="", algorithm="PPO", sp=c.BEAUTIFUL_SP, load=c.BEAUTIFUL_LOAD, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL ,model_path="", num_cpu=c.CPU_AMOUNT):
     colorama.init(autoreset=True)
     os.makedirs("models",exist_ok=True)
     if name=="":
@@ -80,13 +74,13 @@ def train(name="", algorithm="PPO", sp=BEAUTIFUL_SP, load=BEAUTIFUL_LOAD ,model_
     else:
         run_name  = f"bldc_pid_tuner_{name}"
 
-    env = SubprocVecEnv([make_env(sp=sp,rank=i) for i in range(num_cpu)])
+    env = SubprocVecEnv([make_env(sp=sp,load=load,R=R,L=L,b=b,rank=i) for i in range(num_cpu)])
 
     model, log_dir = get_model(algorithm, env, model_path)
 
     print(Fore.GREEN + "Starting training of RL Agent...")
     model.learn(
-        total_timesteps=35000,
+        total_timesteps=50000,
         tb_log_name=run_name,
         reset_num_timesteps=False,
         progress_bar = True
