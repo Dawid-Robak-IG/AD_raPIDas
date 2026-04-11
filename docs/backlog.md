@@ -54,3 +54,4 @@
 - <span style="color: green;">(DR)</span> Made way of training on many CPUs
 - <span style="color: green;">(DR)</span> Made BOM
 - <span style="color: green;">(DR)</span> Added way of training many sessions on one model
+- <span style="color: green;">(DR)</span> Added program for deleting dynamic models
