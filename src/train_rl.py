@@ -1,13 +1,62 @@
 import gymnasium as gym
 from stable_baselines3 import PPO, SAC,TD3,DDPG
+from stable_baselines3.common.utils import set_random_seed
+from stable_baselines3.common.vec_env import SubprocVecEnv
 from env.bldc_gym_env import BLDCEnv
 import os
 from colorama import Fore 
 import colorama
 from datetime import datetime
 import sys
+import random
 
-def train(name="", algorithm="PPO"):
+
+MIN_SP = 1.0
+MAX_SP = 1000
+ITERATIONS = 20
+
+
+def calc_new_SP(i=0):
+    range_width = (MAX_SP - MIN_SP)/ITERATIONS
+    new_min = i*range_width + MIN_SP
+    new_max = (i+1)*range_width + MIN_SP
+    return random.uniform(new_min, new_max)
+
+def get_model(algorithm, env, model_path=None):
+    algorithms = {
+        "PPO": PPO,
+        "SAC": SAC,
+        "TD3": TD3,
+        "DDPG": DDPG
+    }
+    alg_name = algorithm.upper()
+    if algorithm not in algorithms:
+        print(Fore.YELLOW + "Didn't get any right name for algorithm, continuing with PPO...")
+        alg_name = "PPO"
+    
+    log_dir = f"./{alg_name.lower()}_bldc_logs/"
+    algo_class = algorithms[alg_name]
+
+    if model_path and os.path.exists(model_path):
+        print(Fore.CYAN + f"Loading existing model: {model_path}")
+        model = algo_class.load(model_path,env=env)
+    else:
+        print(Fore.GREEN + f"Creating new model: {model_path}")
+        model = algo_class("MlpPolicy", env=env, verbose=1, tensorboard_log=log_dir, device="cpu")
+    return model,log_dir
+
+def make_env(rank, seed=0, sp=1.0):
+    def _init():
+        env = BLDCEnv()
+        env.targeted_speed = sp
+        env.reset(seed=int(seed+rank))
+        return env
+    set_random_seed(seed)
+    return _init
+
+
+
+def train(name="", algorithm="PPO", sp=-1, model_path="", num_cpu=10):
     colorama.init(autoreset=True)
     os.makedirs("models",exist_ok=True)
     if name=="":
@@ -16,31 +65,20 @@ def train(name="", algorithm="PPO"):
     else:
         run_name  = f"bldc_pid_tuner_{name}"
 
-    env = BLDCEnv()
+    env = SubprocVecEnv([make_env(sp=sp,rank=i) for i in range(num_cpu)])
 
-    if(algorithm=="PPO"):
-        model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=log_dir)
-        log_dir = "./ppo_bldc_logs/"
-    elif(algorithm=="SAC"):
-        model = SAC("MlpPolicy", env, verbose=1, tensorboard_log=log_dir)
-        log_dir = "./sac_bldc_logs/"
-    elif(algorithm=="TD3"):
-        model = TD3("MlpPolicy", env, verbose=1, tensorboard_log=log_dir)
-        log_dir = "./td3_bldc_logs/"
-    elif(algorithm=="DDPG"):
-        model = DDPG("MlpPolicy", env, verbose=1, tensorboard_log=log_dir)
-        log_dir = "./ddpg_bldc_logs/"
-    else:
-        print(Fore.YELLOW + "Didn't get any right name for algorithm, continuing with PPO...")
-        model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=log_dir)
+    model, log_dir = get_model(algorithm, env, model_path)
 
-    print(Fore.GREEN + "Starting training pf RL Agent...")
+    print(Fore.GREEN + "Starting training of RL Agent...")
     model.learn(
-        total_timesteps=50000,
-        tb_log_name=run_name
+        total_timesteps=35000,
+        tb_log_name=run_name,
+        reset_num_timesteps=False,
+        progress_bar = True
     )
 
     model.save(f"models/{run_name}")
+    env.close()
     print(Fore.GREEN + f"Model saved: models/{run_name}")
 
 if __name__ == "__main__":

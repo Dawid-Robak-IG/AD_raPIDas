@@ -45,3 +45,5 @@
 - <span style="color: green;">(DR)</span> Made step depend on dt in env
 - <span style="color: green;">(DR)</span> Did some research about rl algorithms
 - <span style="color: green;">(DR)</span> Added possibility of choosing algorithm while training or testing
+
+## Week: 2026-04-01 to 2026-04-14
