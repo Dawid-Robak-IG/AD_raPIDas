@@ -25,9 +25,9 @@ class BLDCEnv(gym.Env):
 
         self.PID = PIDController(dt=self.dt)
 
-        self.maxKp = 1.0
-        self.maxTi = 100.0
-        self.maxTd = 1.0
+        self.maxKp = c.MAX_KP
+        self.maxTi = c.MAX_TI
+        self.maxTd = c.MAX_TD
 
         #definicja przestrzeni akcji EJAJ
         self.action_space = spaces.Box(

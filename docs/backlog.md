@@ -79,3 +79,23 @@
 
 ## Week 2026-04-15 to 2026-04-21
 - <span style="color: green;">(DR)</span> Added figs for first dynamic tests
+- <span style="color: green;">(DR)</span> Train and test with different max Kp Ti Td (changed them)
+<table style="width: 100%; border: none;">
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/with_dynamic_SP_2.png" width="600px"><br>
+      <b>Dynamic SP 1</b>
+    </td>
+    <td align="center" style="border: none;">
+      <img src="figs/with_dnyamic_LOAD_2.png" width="600px"><br>
+      <b>Dynamic LOAD 1</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/with_dynamic_PARAMS_2.png" width="600px"><br>
+      <b>Dynamic PARAMS 1</b>
+    </td>
+    <td style="border: none;"></td>
+  </tr>
+</table>
