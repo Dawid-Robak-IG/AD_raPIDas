@@ -55,3 +55,27 @@
 - <span style="color: green;">(DR)</span> Made BOM
 - <span style="color: green;">(DR)</span> Added way of training many sessions on one model
 - <span style="color: green;">(DR)</span> Added program for deleting dynamic models
+
+<table style="width: 100%; border: none;">
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/with_dynamic_SP_1.png" width="600px"><br>
+      <b>Dynamic SP 1</b>
+    </td>
+    <td align="center" style="border: none;">
+      <img src="figs/with_dnyamic_LOAD_1.png" width="600px"><br>
+      <b>Dynamic LOAD 1</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/with_dynamic_PARAMS_1.png" width="600px"><br>
+      <b>Dynamic PARAMS 1</b>
+    </td>
+    <td style="border: none;"></td>
+  </tr>
+</table>
+
+
+## Week 2026-04-15 to 2026-04-21
+- <span style="color: green;">(DR)</span> Added figs for first dynamic tests

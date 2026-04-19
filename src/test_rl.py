@@ -12,6 +12,7 @@ def test_model(argv):
     model_name = argv[1]
     colorama.init(autoreset=True)
     env = BLDCEnv()
+    # env.targeted_speed = 100
 
     model_path = f"models/bldc_pid_tuner_{model_name}.zip"
     if not os.path.exists(model_path):
