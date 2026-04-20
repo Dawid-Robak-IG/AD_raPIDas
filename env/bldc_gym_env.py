@@ -6,7 +6,7 @@ from env.PID_controller import PIDController
 import env.CONSTS as c
 
 class BLDCEnv(gym.Env):
-    def __init__(self, penalty_factor_error=100, penalty_factor_current=1, penalty_factor_action=1, penalty_stall=200,reward_velocity=1000000, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL):
+    def __init__(self, penalty_factor_error=10, penalty_factor_current=1, penalty_factor_action=1, penalty_stall=200,reward_velocity=100, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL):
         super(BLDCEnv, self).__init__()
 
         self.dt = 0.001
@@ -143,8 +143,10 @@ class BLDCEnv(gym.Env):
             total_reward += self.aim_func(error,current,speed)
 
         # uśrednianie żeby uniknąć wielkich liczb 
-        total_reward = total_reward/1000000
-        print("Reward:",total_reward)
+        total_reward = total_reward/1000000000
+
+        #print("Reward:",total_reward)
+
         terminated = self.motor.t >= self.total_time
 
         #wyliczanie uchybów i różnicy
@@ -170,13 +172,13 @@ class BLDCEnv(gym.Env):
         # asymetryczna kara za przekroczenie
         abs_error = abs(error)
         if error > 0:
-            total_reward -= self.penalty_factor_error * pow(abs_error, 2)
+            total_reward -= self.penalty_factor_error * abs_error*abs_error
         else:
-            total_reward -= 10 * self.penalty_factor_error * pow(abs_error, 2) # 10x większa kara za overshoot
+            total_reward -= 10 * self.penalty_factor_error * abs_error*abs_error # 10x większa kara za overshoot
 
         # kara za nadmierne zużycie prądu (nie generację)
         if current>0:
-            total_reward -= self.penalty_factor_current*pow(current,2)
+            total_reward -= self.penalty_factor_current*current*current
 
         # kara za stall
         if abs(current) > 5.0 and speed < 0.1:

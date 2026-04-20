@@ -111,7 +111,27 @@
   </tr>
 </table>
 
-- <span style="color: green;">(KS)</span> Changed agent action from direct values to % change
-- <span style="color: green;">(KS)</span> Changed CONST values
-- <span style="color: green;">(KS)</span> Fixed scripts to pass tests
-- <span style="color: green;">(KS)</span> Moved PID script from src to env
+- <span style="color: blue;">(KS)</span> Changed agent action from direct values to % change
+- <span style="color: blue;">(KS)</span> Changed CONST values
+- <span style="color: blue;">(KS)</span> Fixed scripts to pass tests
+- <span style="color: blue;">(KS)</span> Moved PID script from src to env
+- <span style="color: blue;">(KS)</span> Fixed test_rl plots
+- <span style="color: blue;">(KS)</span> Added randomization to test_rl call
+
+<table style="width: 100%; border: none;">
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/KS_v3_SP.png" width="600px"><br>
+      <b>Trained: dynamic SP, Run witch random SP & params</b>
+    </td>
+  </tr>
+</table>
+
+<table style="width: 100%; border: none;">
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/KS_v3_PARAMS.png" width="600px"><br>
+      <b>Trained: dynamic PARAMS, Run witch random SP & params</b>
+    </td>
+  </tr>
+</table>

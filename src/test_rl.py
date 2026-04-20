@@ -7,12 +7,22 @@ import os
 from colorama import Fore
 import colorama
 import sys
+import env.CONSTS as c
 
-def test_model(argv):
+def test_model(argv, rand):
     model_name = argv[1]
     colorama.init(autoreset=True)
-    env = BLDCEnv()
-    # env.targeted_speed = 100
+
+
+    if (rand):
+
+        env = BLDCEnv(R=np.random.uniform(c.MIN_R, c.MAX_R),
+                    L=np.random.uniform(c.MIN_L, c.MAX_L), 
+                    b=np.random.uniform(c.MIN_b, c.MAX_b))
+        env.targeted_speed = np.random.uniform(c.MIN_SP, c.MAX_SP)
+    
+    else:
+        env = BLDCEnv()
 
     model_path = f"models/bldc_pid_tuner_{model_name}.zip"
     if not os.path.exists(model_path):
@@ -35,7 +45,15 @@ def test_model(argv):
         model = PPO.load(model_path)
     obs, _ = env.reset()
 
-    history = {"t": [], "v": [], "target": [], "kp": [], "Ti": [], "Td": [], "i": []}
+    history = {"t": [0], 
+               "v": [env.motor.current_draw], 
+               "target": [env.targeted_speed], 
+               "kp": [env.PID.kp], 
+               "Ti": [env.PID.Ti], 
+               "Td": [env.PID.Td], 
+               "kp_act": [0], 
+               "Ti_act": [0], 
+               "Td_act": [0]}    
 
     print(Fore.GREEN + f"Launching model: {model_path}...")
     for step in range(1000): # 20 sekundy / 0.1s step = 200 kroków
@@ -45,24 +63,35 @@ def test_model(argv):
         history["t"].append(step * 0.1)
         history["v"].append(obs[3]*1000)
         history["target"].append(obs[2]*1000)
-        history["kp"].append(action[0])
-        history["Ti"].append(action[1])
-        history["Td"].append(action[2])
+        history["kp"].append(env.PID.kp)
+        history["Ti"].append(env.PID.Ti)
+        history["Td"].append(env.PID.Td)
+        history["kp_act"].append(action[0])
+        history["Ti_act"].append(action[1])
+        history["Td_act"].append(action[2])
         
         if terminated: break
 
     plt.figure(figsize=(10, 8))
-    plt.subplot(2, 1, 1)
+    plt.subplot(3, 1, 1)
     plt.plot(history["t"], history["v"], label="Velocity RL")
     plt.plot(history["t"], history["target"], 'r--', label="Target")
     plt.ylabel("Velocity [rad/s]")
     plt.legend()
     
-    plt.subplot(2, 1, 2)
+    plt.subplot(3, 1, 2)
     plt.plot(history["t"], history["kp"], label="kp")
     plt.plot(history["t"], history["Ti"], label="Ti")
     plt.plot(history["t"], history["Td"], label="Td")
     plt.ylabel("PID")
+    plt.xlabel("Time[s]")
+    plt.legend()
+
+    plt.subplot(3, 1, 3)
+    plt.plot(history["t"], history["kp_act"], label="kp_action")
+    plt.plot(history["t"], history["Ti_act"], label="Ti_action")
+    plt.plot(history["t"], history["Td_act"], label="Td_action")
+    plt.ylabel("% changes")
     plt.xlabel("Time[s]")
     plt.legend()
     
@@ -73,5 +102,8 @@ if __name__ == "__main__":
     if(len(sys.argv)<2):
         print(Fore.RED + f"No name for model given, returning...")
         exit()
-    test_model(sys.argv)
+    if(len(sys.argv)==3):
+        test_model(sys.argv, 1)
+    else: 
+        test_model(sys.argv, 0)
     
