@@ -15,7 +15,7 @@ def bldc_test():
     load_torque = 0.1
 
     for i in range(time_steps):
-        speed,curr = motor.sim_step(voltage_input,load_torque,dt)
+        speed,curr = motor.sim_step(voltage_input,load_torque)
         speeds.append(speed)
         currents.append(curr)
         time.append(motor.t)

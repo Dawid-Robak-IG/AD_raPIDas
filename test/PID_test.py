@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from env.BLDC_motor import BLDCMotor
-from src.PID_controller import PIDController
+from env.PID_controller import PIDController
 import os
 
 def test_pid_controller():
@@ -9,8 +9,8 @@ def test_pid_controller():
     motor = BLDCMotor()
     pid = PIDController(kp=0.15, Ti=0.3, Td=0.01,dt=dt)
 
-    setpoint = 800.0
-    load_torque = 0.1
+    setpoint = 2000.0
+    load_torque = 0.05
     seconds = 10.0
     steps = int(seconds/dt)
 
@@ -25,7 +25,7 @@ def test_pid_controller():
         current_v, current_i = motor.current_speed, motor.current_draw
         voltage = pid.get_action(setpoint, current_v)
 
-        measured_speed, measured_current = motor.sim_step(voltage, load_torque, dt)
+        measured_speed, measured_current = motor.sim_step(voltage, load_torque)
 
         history_speed.append(measured_speed)
         history_current.append(measured_current)

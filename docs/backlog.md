@@ -110,3 +110,8 @@
     <td style="border: none;"></td>
   </tr>
 </table>
+
+- <span style="color: green;">(KS)</span> Changed agent action from direct values to % change
+- <span style="color: green;">(KS)</span> Changed CONST values
+- <span style="color: green;">(KS)</span> Fixed scripts to pass tests
+- <span style="color: green;">(KS)</span> Moved PID script from src to env
