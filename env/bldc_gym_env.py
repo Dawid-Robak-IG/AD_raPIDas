@@ -12,7 +12,7 @@ class BLDCEnv(gym.Env):
         self.dt = 0.001
         self.sim_steps_per_agent_step = 100
         self.motor = BLDCMotor(dt = self.dt,R=R,L=L,b=b)
-        self.total_time = 20
+        self.total_time = c.MAX_TOTAL_TIME
         self.targeted_speed = c.BEAUTIFUL_SP
         self.load = c.BEAUTIFUL_LOAD
 
@@ -97,6 +97,19 @@ class BLDCEnv(gym.Env):
 
 
         # !!! dzielenie /1000 żeby zapewnić zakres -10 - 10
+        observation = np.array([
+            self.targeted_speed/1000, # error (cel - 0)
+            0.0,                 # error_dif
+            self.targeted_speed/1000, # target
+            0.0,                 # velocity
+            0.0,                 # current
+            self.PID.kp,         # aktualne Kp
+            self.PID.Ti,         # aktualne Ti
+            self.PID.Td          # aktualne Td
+        ], dtype=np.float32)
+        return observation, {}
+    
+    def obs_reset(self):
         observation = np.array([
             self.targeted_speed/1000, # error (cel - 0)
             0.0,                 # error_dif

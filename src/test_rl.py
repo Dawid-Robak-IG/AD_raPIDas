@@ -79,7 +79,20 @@ def make_plot(history):
     
     plt.show()
 
-def test_model(model_name, algorithm="PPO", is_rand_SP=False, is_rand_PARAMS=False ,is_rand_LOAD=False):
+def get_new_current_SP(max_step_change_percent, min_step_change_percent ,current_sp):
+    choosen_pecent = np.random.uniform(min_step_change_percent,max_step_change_percent)
+    direction = np.random.choice([-1,1])
+    current_sp *= 1+(direction+choosen_pecent/100)
+
+    if(current_sp>c.MAX_SP):
+        current_sp = c.MAX_SP
+    elif(current_sp<c.MIN_SP):
+        current_sp = c.MIN_SP
+    current_sp = round(current_sp,3)
+    return current_sp
+
+def test_model(model_name, algorithm="PPO", is_rand_SP=False, is_rand_PARAMS=False ,is_rand_LOAD=False, 
+               is_SP_floating=False,steps_change_SP=250, max_change_percent_SP=10, min_change_percent_SP=0 ,is_debug=False):
     model_name = model_name
     colorama.init(autoreset=True)
     env = make_env(is_rand_LOAD=is_rand_LOAD,is_rand_SP=is_rand_SP,is_rand_PARAMS=is_rand_PARAMS)
@@ -103,7 +116,19 @@ def test_model(model_name, algorithm="PPO", is_rand_SP=False, is_rand_PARAMS=Fal
                "Td_act": [0]}    
 
     print(Fore.GREEN + f"Launching model: {model_path}...")
+    iteration_change=1
+    if(is_debug):
+        print(Fore.LIGHTMAGENTA_EX + f"DEBUG: is_SP_floating = {is_SP_floating}")
+        print(Fore.LIGHTMAGENTA_EX + f"DEBUG: steps_change_SP = {steps_change_SP}")
     for step in range(1000): # 20 sekundy / 0.1s step = 200 kroków
+        if(is_SP_floating and iteration_change*steps_change_SP < step):
+            env.targeted_speed = get_new_current_SP(max_step_change_percent=max_change_percent_SP,min_step_change_percent=min_change_percent_SP,
+                                                    current_sp=env.targeted_speed)
+            env.obs_reset()
+            print(Fore.CYAN + f"New targeted speed: {env.targeted_speed}")
+            iteration_change += 1
+            print(f"step: {step}")
+
         action, _ = model.predict(obs, deterministic=True)
         obs, reward, terminated, truncated, info = env.step(action)
         
@@ -129,7 +154,12 @@ if __name__ == "__main__":
     parser.add_argument("--rand_sp", action="store_true", help="Turn on rand SetPoint")
     parser.add_argument("--rand_params", action="store_true", help="Turn on rand Parameters (R, L, b)")
     parser.add_argument("--rand_load", action="store_true", help="Turn on rand Load")
-    parser.add_argument("--algorithm", type=str, default="sesja_1", help="Choose algorithm")
+    parser.add_argument("--floating_SP", action="store_true", help="Turn on floating sp while testing time")
+    parser.add_argument("--max_float_SP_percent", type=int, default=20, help="How much SP can change in percent to current value")
+    parser.add_argument("--min_float_SP_percent", type=int, default=10, help="How much SP can change in percent to current value")
+    parser.add_argument("--steps_change_SP", type=int, default=250, help="Determines per how many steps it should change SP value")
+    parser.add_argument("--algorithm", type=str, default="PPO", help="Choose algorithm")
+    parser.add_argument("--debug", action="store_true", help="Turn on debug logs")
 
     args = parser.parse_args()
 
@@ -137,7 +167,12 @@ if __name__ == "__main__":
                algorithm=args.algorithm, 
                is_rand_SP=args.rand_sp, 
                is_rand_LOAD=args.rand_load, 
-               is_rand_PARAMS=args.rand_params)
+               is_rand_PARAMS=args.rand_params,
+               is_SP_floating=args.floating_SP,
+               steps_change_SP=args.steps_change_SP,
+               max_change_percent_SP=args.max_float_SP_percent,
+               min_change_percent_SP=args.min_float_SP_percent,
+               is_debug = args.debug)
 
     
     

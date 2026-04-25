@@ -36,3 +36,5 @@ MAX_TD = 1
 # akcje w %
 MIN_ACT = -5
 MAX_ACT = 5
+
+MAX_TOTAL_TIME = 40
