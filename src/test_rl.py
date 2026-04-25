@@ -8,41 +8,88 @@ from colorama import Fore
 import colorama
 import sys
 import env.CONSTS as c
+import argparse
 
-def test_model(argv, rand):
-    model_name = argv[1]
-    colorama.init(autoreset=True)
-
-
-    if (rand):
-
-        env = BLDCEnv(R=np.random.uniform(c.MIN_R, c.MAX_R),
-                    L=np.random.uniform(c.MIN_L, c.MAX_L), 
-                    b=np.random.uniform(c.MIN_b, c.MAX_b))
-        env.targeted_speed = np.random.uniform(c.MIN_SP, c.MAX_SP)
-    
+def make_env(is_rand_SP=False, is_rand_PARAMS=False ,is_rand_LOAD=False):
+    if (is_rand_SP):
+        targeted_speed = np.random.uniform(c.MIN_SP, c.MAX_SP)
     else:
-        env = BLDCEnv()
+        targeted_speed = c.BEAUTIFUL_SP
+    
+    if (is_rand_PARAMS):
+        targeted_R = np.random.uniform(c.MIN_R, c.MAX_R)
+        targeted_L = np.random.uniform(c.MIN_L, c.MAX_L)
+        targeted_b = np.random.uniform(c.MIN_b, c.MAX_b)
+    else:
+        targeted_R = c.R_NOMINAL
+        targeted_L = c.L_NOMINAL
+        targeted_b = c.b_NOMINAL
+
+    if (is_rand_LOAD):
+        targeted_LOAD = np.random.uniform(c.MIN_LOAD,c.MAX_LOAD) 
+    else:
+        targeted_LOAD = c.BEAUTIFUL_LOAD
+
+    env = BLDCEnv(R=targeted_R,
+                  L=targeted_L,
+                  b=targeted_b)
+    env.targeted_speed = targeted_speed
+    env.load = targeted_LOAD
+    print(Fore.GREEN + f"Testing with: SP={targeted_speed}, LOAD={targeted_LOAD}")
+    print(Fore.GREEN + f"            : R={targeted_R:.3f}, L={targeted_L:3f}, b={targeted_b:3f}")
+    return env
+     
+def get_model(algorithm,model_path):
+    if(algorithm=="PPO"):
+        model = PPO.load(model_path)
+    elif(algorithm=="SAC"):
+        model = SAC.load(model_path)
+    elif(algorithm=="TD3"):
+        model = TD3.load(model_path)
+    elif(algorithm=="DDPG"):
+        model = DDPG.load(model_path)
+    else:
+        print(Fore.YELLOW + "Didn't get any right name for algorithm, continuing with PPO...")
+        model = PPO.load(model_path)
+    return model
+
+def make_plot(history):
+    plt.figure(figsize=(10, 8))
+    plt.subplot(3, 1, 1)
+    plt.plot(history["t"], history["v"], label="Velocity RL")
+    plt.plot(history["t"], history["target"], 'r--', label="Target")
+    plt.ylabel("Velocity [rad/s]")
+    plt.legend()
+    
+    plt.subplot(3, 1, 2)
+    plt.plot(history["t"], history["kp"], label="kp")
+    plt.plot(history["t"], history["Ti"], label="Ti")
+    plt.plot(history["t"], history["Td"], label="Td")
+    plt.ylabel("PID")
+    plt.xlabel("Time[s]")
+    plt.legend()
+
+    plt.subplot(3, 1, 3)
+    plt.plot(history["t"], history["kp_act"], label="kp_action")
+    plt.plot(history["t"], history["Ti_act"], label="Ti_action")
+    plt.plot(history["t"], history["Td_act"], label="Td_action")
+    plt.ylabel("% changes")
+    plt.xlabel("Time[s]")
+    plt.legend()
+    
+    plt.show()
+
+def test_model(model_name, algorithm="PPO", is_rand_SP=False, is_rand_PARAMS=False ,is_rand_LOAD=False):
+    model_name = model_name
+    colorama.init(autoreset=True)
+    env = make_env(is_rand_LOAD=is_rand_LOAD,is_rand_SP=is_rand_SP,is_rand_PARAMS=is_rand_PARAMS)
 
     model_path = f"models/bldc_pid_tuner_{model_name}.zip"
     if not os.path.exists(model_path):
         print(Fore.RED + f"Couldn't find {model_path}")
         return
-    
-    if(len(argv)>2):
-        if(argv[2]=="PPO"):
-            model = PPO.load(model_path)
-        elif(argv[2]=="SAC"):
-            model = SAC.load(model_path)
-        elif(argv[2]=="TD3"):
-            model = TD3.load(model_path)
-        elif(argv[2]=="DDPG"):
-            model = DDPG.load(model_path)
-        else:
-            print(Fore.YELLOW + "Didn't get any right name for algorithm, continuing with PPO...")
-            model = PPO.load(model_path)
-    else:
-        model = PPO.load(model_path)
+    model = get_model(algorithm=algorithm,model_path=model_path)
+
     obs, _ = env.reset()
 
     history = {"t": [0], 
@@ -72,38 +119,25 @@ def test_model(argv, rand):
         
         if terminated: break
 
-    plt.figure(figsize=(10, 8))
-    plt.subplot(3, 1, 1)
-    plt.plot(history["t"], history["v"], label="Velocity RL")
-    plt.plot(history["t"], history["target"], 'r--', label="Target")
-    plt.ylabel("Velocity [rad/s]")
-    plt.legend()
-    
-    plt.subplot(3, 1, 2)
-    plt.plot(history["t"], history["kp"], label="kp")
-    plt.plot(history["t"], history["Ti"], label="Ti")
-    plt.plot(history["t"], history["Td"], label="Td")
-    plt.ylabel("PID")
-    plt.xlabel("Time[s]")
-    plt.legend()
-
-    plt.subplot(3, 1, 3)
-    plt.plot(history["t"], history["kp_act"], label="kp_action")
-    plt.plot(history["t"], history["Ti_act"], label="Ti_action")
-    plt.plot(history["t"], history["Td_act"], label="Td_action")
-    plt.ylabel("% changes")
-    plt.xlabel("Time[s]")
-    plt.legend()
-    
-    plt.show()
+    make_plot(history=history)
 
 if __name__ == "__main__":
     colorama.init(autoreset=True)
-    if(len(sys.argv)<2):
-        print(Fore.RED + f"No name for model given, returning...")
-        exit()
-    if(len(sys.argv)==3):
-        test_model(sys.argv, 1)
-    else: 
-        test_model(sys.argv, 0)
+    parser = argparse.ArgumentParser(description="Testing trained model parser")
+
+    parser.add_argument("--name", type=str, default="num1", help="Name of model")    
+    parser.add_argument("--rand_sp", action="store_true", help="Turn on rand SetPoint")
+    parser.add_argument("--rand_params", action="store_true", help="Turn on rand Parameters (R, L, b)")
+    parser.add_argument("--rand_load", action="store_true", help="Turn on rand Load")
+    parser.add_argument("--algorithm", type=str, default="sesja_1", help="Choose algorithm")
+
+    args = parser.parse_args()
+
+    test_model(model_name=args.name,
+               algorithm=args.algorithm, 
+               is_rand_SP=args.rand_sp, 
+               is_rand_LOAD=args.rand_load, 
+               is_rand_PARAMS=args.rand_params)
+
+    
     

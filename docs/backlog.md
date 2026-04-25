@@ -135,3 +135,8 @@
     </td>
   </tr>
 </table>
+
+## Week 2026-04-22 to 2026-04-28
+- <span style="color: green;">(DR)</span> Optimised way of training (now it doesnt save and load model constantly, it creates model,env one time, one time save)
+- <span style="color: green;">(DR)</span> Added normal flags for testing (easy to choose rand sp,load,params etc.)
+
