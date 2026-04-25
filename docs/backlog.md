@@ -140,3 +140,4 @@
 - <span style="color: green;">(DR)</span> Optimised way of training (now it doesnt save and load model constantly, it creates model,env one time, one time save)
 - <span style="color: green;">(DR)</span> Added normal flags for testing (easy to choose rand sp,load,params etc.)
 - <span style="color: green;">(DR)</span> Added possibility of floating SP in testing
+- <span style="color: green;">(DR)</span> Added possibility of training with changing SP, PARAMS, LOAD in one time. After 1/3rd of all iteration it starts to change another thing. From start SP, then PARAMS, then LOAD

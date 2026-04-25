@@ -10,7 +10,12 @@ from datetime import datetime
 import sys
 import random
 import env.CONSTS as c
+from typing import TypedDict, Optional
 
+class RandomnessIterationsStarts(TypedDict):
+    SP_i_start: int
+    LOAD_i_start: int
+    PARAMS_i_start: int
 
 def calc_new_SP(i=0):
     range_width = (c.MAX_SP - c.MIN_SP)/c.ITERATIONS
@@ -36,7 +41,7 @@ def get_dyn_name(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False):
     if is_rand_PARAMS:
         model_name += "_PARAMS"
     if is_rand_LOAD:
-        model_name +="LOAD"
+        model_name +="_LOAD"
     return model_name
 
 def get_model(algorithm, env, model_path=None):
@@ -72,8 +77,6 @@ def make_env(rank, seed=0, sp=c.BEAUTIFUL_SP, load=c.BEAUTIFUL_LOAD, R=c.R_NOMIN
     set_random_seed(seed)
     return _init
 
-
-
 def train(name="", algorithm="PPO", sp=c.BEAUTIFUL_SP, load=c.BEAUTIFUL_LOAD, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL ,model_path="", num_cpu=c.CPU_AMOUNT):
     colorama.init(autoreset=True)
     os.makedirs("models",exist_ok=True)
@@ -99,9 +102,16 @@ def train(name="", algorithm="PPO", sp=c.BEAUTIFUL_SP, load=c.BEAUTIFUL_LOAD, R=
     env.close()
     print(Fore.GREEN + f"Model saved: models/{run_name}")
 
-def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False):
+def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False, 
+                 i_rand_starts: Optional[RandomnessIterationsStarts] = None):
     colorama.init(autoreset=True)
     os.makedirs("models",exist_ok=True)
+    if i_rand_starts is None:
+        i_rand_starts = {
+            "SP_i_start": 0,
+            "LOAD_i_start": 0,
+            "PARAMS_i_start": 0
+        }
     model_name = get_dyn_name(is_rand_SP=is_rand_SP, is_rand_PARAMS=is_rand_PARAMS, is_rand_LOAD=is_rand_LOAD)
 
     env = SubprocVecEnv([make_env(rank=i) for i in range(c.CPU_AMOUNT)])
@@ -115,11 +125,11 @@ def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False):
                 batch_size=64)
 
     for i in range(c.ITERATIONS):
-        if is_rand_SP:
+        if is_rand_SP and i_rand_starts.SP_i_start <= i:
             new_sp = calc_new_SP(i)
             env.set_attr("sp",new_sp)
             print(Fore.GREEN + f"Trainig for SP: {new_sp} | i: {i}")
-        if is_rand_PARAMS:
+        if is_rand_PARAMS and i_rand_starts.PARAMS_i_start <= i:
             new_R = calc_new_param(i,c.R_NOMINAL,c.MAX_R,c.MIN_R)
             new_L = calc_new_param(i,c.L_NOMINAL,c.MAX_L,c.MIN_L)
             new_b = calc_new_param(i,c.b_NOMINAL,c.MAX_b,c.MIN_b)
@@ -127,7 +137,7 @@ def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False):
             env.set_attr("L", new_L)
             env.set_attr("b", new_b)
             print(Fore.GREEN + f"Trainig for R: {new_R} | L: {new_L} | b: {new_b} |i: {i}")
-        if is_rand_LOAD:
+        if is_rand_LOAD and i_rand_starts.LOAD_i_start <= i:
             new_load = calc_new_load(i)
             env.set_attr("load",new_load)
             print(Fore.GREEN + f"Trainig for LOAD: {new_load} | i: {i}")
@@ -139,9 +149,6 @@ def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False):
             reset_num_timesteps=False,
             progress_bar=True,
         )
-        
-        # current_model_path = f"models/bldc_pid_tuner_{model_name}_i_{i}.zip"
-        # model.save(current_model_path)
 
     current_model_path = f"models/bldc_pid_tuner_{model_name}.zip"
     model.save(current_model_path)
