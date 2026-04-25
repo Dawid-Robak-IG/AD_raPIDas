@@ -29,6 +29,15 @@ def calc_new_param(i, nominal_value, max_val, min_val ,variation_scale=0.05):
     val = random.uniform(nominal_value - max_deviation, nominal_value + max_deviation)
     return max(min(val, max_val), min_val)
 
+def get_dyn_name(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False):
+    model_name = "with_dynamic"
+    if is_rand_SP:
+        model_name += "_SP"
+    if is_rand_PARAMS:
+        model_name += "_PARAMS"
+    if is_rand_LOAD:
+        model_name +="LOAD"
+    return model_name
 
 def get_model(algorithm, env, model_path=None):
     algorithms = {
@@ -87,6 +96,55 @@ def train(name="", algorithm="PPO", sp=c.BEAUTIFUL_SP, load=c.BEAUTIFUL_LOAD, R=
     )
 
     model.save(f"models/{run_name}")
+    env.close()
+    print(Fore.GREEN + f"Model saved: models/{run_name}")
+
+def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False):
+    colorama.init(autoreset=True)
+    os.makedirs("models",exist_ok=True)
+    model_name = get_dyn_name(is_rand_SP=is_rand_SP, is_rand_PARAMS=is_rand_PARAMS, is_rand_LOAD=is_rand_LOAD)
+
+    env = SubprocVecEnv([make_env(rank=i) for i in range(c.CPU_AMOUNT)])
+    log_dir = f"./ppo_bldc_logs/"
+    run_name  = f"bldc_pid_tuner" +  model_name
+    model = PPO("MlpPolicy",
+                env=env,verbose=1, 
+                tensorboard_log=log_dir, 
+                device="cpu",
+                n_steps = 512,
+                batch_size=64)
+
+    for i in range(c.ITERATIONS):
+        if is_rand_SP:
+            new_sp = calc_new_SP(i)
+            env.set_attr("sp",new_sp)
+            print(Fore.GREEN + f"Trainig for SP: {new_sp} | i: {i}")
+        if is_rand_PARAMS:
+            new_R = calc_new_param(i,c.R_NOMINAL,c.MAX_R,c.MIN_R)
+            new_L = calc_new_param(i,c.L_NOMINAL,c.MAX_L,c.MIN_L)
+            new_b = calc_new_param(i,c.b_NOMINAL,c.MAX_b,c.MIN_b)
+            env.set_attr("R", new_R)
+            env.set_attr("L", new_L)
+            env.set_attr("b", new_b)
+            print(Fore.GREEN + f"Trainig for R: {new_R} | L: {new_L} | b: {new_b} |i: {i}")
+        if is_rand_LOAD:
+            new_load = calc_new_load(i)
+            env.set_attr("load",new_load)
+            print(Fore.GREEN + f"Trainig for LOAD: {new_load} | i: {i}")
+        env.reset()
+
+        model.learn(
+            total_timesteps=c.TIMESTEPS,
+            tb_log_name=run_name,
+            reset_num_timesteps=False,
+            progress_bar=True,
+        )
+        
+        # current_model_path = f"models/bldc_pid_tuner_{model_name}_i_{i}.zip"
+        # model.save(current_model_path)
+
+    current_model_path = f"models/bldc_pid_tuner_{model_name}.zip"
+    model.save(current_model_path)
     env.close()
     print(Fore.GREEN + f"Model saved: models/{run_name}")
 
