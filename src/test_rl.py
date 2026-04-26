@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 from stable_baselines3 import PPO, SAC, TD3,DDPG
 from env.bldc_gym_env import BLDCEnv
+import src.control_evaluation
 import os 
 from colorama import Fore
 import colorama
@@ -105,15 +106,11 @@ def test_model(model_name, algorithm="PPO", is_rand_SP=False, is_rand_PARAMS=Fal
 
     obs, _ = env.reset()
 
-    history = {"t": [0], 
-               "v": [env.motor.current_draw], 
-               "target": [env.targeted_speed], 
-               "kp": [env.PID.kp], 
-               "Ti": [env.PID.Ti], 
-               "Td": [env.PID.Td], 
-               "kp_act": [0], 
-               "Ti_act": [0], 
-               "Td_act": [0]}    
+    history = {
+        "t": [], "v": [], "target": [],
+        "kp": [], "Ti": [], "Td": [],
+        "kp_act": [], "Ti_act": [], "Td_act": []
+    }   
 
     print(Fore.GREEN + f"Launching model: {model_path}...")
     iteration_change=1
@@ -144,7 +141,11 @@ def test_model(model_name, algorithm="PPO", is_rand_SP=False, is_rand_PARAMS=Fal
         
         if terminated: break
 
+    src.control_evaluation.print_eval(src.control_evaluation.calculate_evaluations(np.array(history["t"]),
+                                                       np.array(history["v"]),
+                                                       np.array(history["target"])))
     make_plot(history=history)
+
 
 if __name__ == "__main__":
     colorama.init(autoreset=True)
@@ -155,9 +156,9 @@ if __name__ == "__main__":
     parser.add_argument("--rand_params", action="store_true", help="Turn on rand Parameters (R, L, b)")
     parser.add_argument("--rand_load", action="store_true", help="Turn on rand Load")
     parser.add_argument("--floating_SP", action="store_true", help="Turn on floating sp while testing time")
-    parser.add_argument("--max_float_SP_percent", type=int, default=20, help="How much SP can change in percent to current value")
-    parser.add_argument("--min_float_SP_percent", type=int, default=10, help="How much SP can change in percent to current value")
-    parser.add_argument("--steps_change_SP", type=int, default=250, help="Determines per how many steps it should change SP value")
+    parser.add_argument("--max_float_SP_percent", type=int, default=30, help="How much SP can change in percent to current value")
+    parser.add_argument("--min_float_SP_percent", type=int, default=20, help="How much SP can change in percent to current value")
+    parser.add_argument("--steps_change_SP", type=int, default=50, help="Determines per how many steps it should change SP value")
     parser.add_argument("--algorithm", type=str, default="PPO", help="Choose algorithm")
     parser.add_argument("--debug", action="store_true", help="Turn on debug logs")
 
