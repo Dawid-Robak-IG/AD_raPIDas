@@ -24,7 +24,7 @@ def get_settling_time_steady_sp(v,sp,t, percent_for_correct_val=5):
     for i in range(len(t)):
         if abs(v[i] - sp[0]) <= band:
             return t[i] - t[0]
-    return -1.0
+    return np.nan
 
 def mean_settling_time(v,sp,t):
     idx_of_changing_sp = [0]
@@ -45,8 +45,7 @@ def mean_settling_time(v,sp,t):
         t_seg = t[start:end]
 
         ts = get_settling_time_steady_sp(v_seg,sp_seg,t_seg)
-        if ts >= 0: 
-            settling_times.append(ts)
+        settling_times.append(ts)
         
     return np.mean(settling_times) if settling_times else -1.0
 

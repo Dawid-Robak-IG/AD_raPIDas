@@ -83,12 +83,12 @@ def make_plot(history):
 def get_new_current_SP(max_step_change_percent, min_step_change_percent ,current_sp):
     choosen_pecent = np.random.uniform(min_step_change_percent,max_step_change_percent)
     direction = np.random.choice([-1,1])
-    current_sp *= 1+(direction+choosen_pecent/100)
+    current_sp *= 1+(direction*choosen_pecent/100)
 
     if(current_sp>c.MAX_SP):
-        current_sp = c.MAX_SP
+        current_sp = c.MAX_SP - (c.MAX_SP * (1+(choosen_pecent/100)))
     elif(current_sp<c.MIN_SP):
-        current_sp = c.MIN_SP
+        current_sp = c.MIN_SP + (c.MIN_SP * (1+(choosen_pecent/100)))
     current_sp = round(current_sp,3)
     return current_sp
 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     parser.add_argument("--rand_params", action="store_true", help="Turn on rand Parameters (R, L, b)")
     parser.add_argument("--rand_load", action="store_true", help="Turn on rand Load")
     parser.add_argument("--floating_SP", action="store_true", help="Turn on floating sp while testing time")
-    parser.add_argument("--max_float_SP_percent", type=int, default=30, help="How much SP can change in percent to current value")
+    parser.add_argument("--max_float_SP_percent", type=int, default=40, help="How much SP can change in percent to current value")
     parser.add_argument("--min_float_SP_percent", type=int, default=20, help="How much SP can change in percent to current value")
     parser.add_argument("--steps_change_SP", type=int, default=50, help="Determines per how many steps it should change SP value")
     parser.add_argument("--algorithm", type=str, default="PPO", help="Choose algorithm")
