@@ -142,4 +142,4 @@
 - <span style="color: green;">(DR)</span> Added possibility of floating SP in testing
 - <span style="color: green;">(DR)</span> Added possibility of training with changing SP, PARAMS, LOAD in one time. After 1/3rd of all iteration it starts to change another thing. From start SP, then PARAMS, then LOAD
 - <span style="color: green;">(DR)</span> Added function to evaluate agent controlling in changing sp environment
-
+- <span style="color: green;">(DR)</span> Hotfix way of changing floating SP values
