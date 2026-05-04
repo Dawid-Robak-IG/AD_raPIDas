@@ -13,24 +13,26 @@ import env.CONSTS as c
 from typing import TypedDict, Optional
 
 class RandomnessIterationsStarts(TypedDict):
-    SP_i_start: int
+    SP_init_i_start: int
+    SP_change_i_start: int
     LOAD_i_start: int
     PARAMS_i_start: int
 
-def calc_new_SP(i=0):
+def calc_new_SP(i):
     range_width = (c.MAX_SP - c.MIN_SP)/c.ITERATIONS
     new_min = i*range_width + c.MIN_SP
     new_max = (i+1)*range_width + c.MIN_SP
     return int(random.uniform(new_min, new_max))
 
-def calc_new_load(i=0):
-    range_width = (c.MAX_LOAD - c.MIN_LOAD)/c.ITERATIONS
+def calc_new_load(i, i_max):
+    range_width = (c.MAX_LOAD - c.MIN_LOAD)/i_max
     new_min = i*range_width + c.MIN_LOAD
     new_max = (i+1)*range_width + c.MIN_LOAD
     return random.uniform(new_min, new_max)
 
-def calc_new_param(i, nominal_value, max_val, min_val ,variation_scale=0.05):
-    max_deviation = nominal_value * (variation_scale * (i / c.ITERATIONS))
+def calc_new_param(i,i_max,nominal_value, max_val, min_val ,variation_scale=0.05):
+
+    max_deviation = nominal_value * (variation_scale * (i /i_max))
     val = random.uniform(nominal_value - max_deviation, nominal_value + max_deviation)
     return max(min(val, max_val), min_val)
 
@@ -67,7 +69,7 @@ def get_model(algorithm, env, model_path=None):
         model = algo_class("MlpPolicy", env=env, verbose=1, tensorboard_log=log_dir, device="cpu")
     return model,log_dir
 
-def make_env(rank, seed=0, sp=c.BEAUTIFUL_SP, load=c.BEAUTIFUL_LOAD, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL):
+def make_env(rank, seed=0, sp=c.NOMINAL_SP, load=c.NOMINAL_LOAD, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL):
     def _init():
         env = BLDCEnv(R=R,L=L,b=b)
         env.targeted_speed = sp
@@ -77,7 +79,7 @@ def make_env(rank, seed=0, sp=c.BEAUTIFUL_SP, load=c.BEAUTIFUL_LOAD, R=c.R_NOMIN
     set_random_seed(seed)
     return _init
 
-def train(name="", algorithm="PPO", sp=c.BEAUTIFUL_SP, load=c.BEAUTIFUL_LOAD, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL ,model_path="", num_cpu=c.CPU_AMOUNT):
+def train(name="", algorithm="PPO", sp=c.NOMINAL_SP, load=c.NOMINAL_LOAD, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL ,model_path="", num_cpu=c.CPU_AMOUNT):
     colorama.init(autoreset=True)
     os.makedirs("models",exist_ok=True)
     if name=="":
@@ -102,13 +104,17 @@ def train(name="", algorithm="PPO", sp=c.BEAUTIFUL_SP, load=c.BEAUTIFUL_LOAD, R=
     env.close()
     print(Fore.GREEN + f"Model saved: models/{run_name}")
 
+
+
+
 def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False, 
                  i_rand_starts: Optional[RandomnessIterationsStarts] = None):
     colorama.init(autoreset=True)
     os.makedirs("models",exist_ok=True)
     if i_rand_starts is None:
         i_rand_starts = {
-            "SP_i_start": 0,
+            "SP_init_i_start": 0,
+            "SP_change_i_start":0,
             "LOAD_i_start": 0,
             "PARAMS_i_start": 0
         }
@@ -125,20 +131,25 @@ def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False,
                 batch_size=64)
 
     for i in range(c.ITERATIONS):
-        if is_rand_SP and i_rand_starts.SP_i_start <= i:
+        if is_rand_SP and i_rand_starts.SP_init_i_start <= i:
             new_sp = calc_new_SP(i)
-            env.set_attr("sp",new_sp)
+            env.set_attr("targeted_speed",new_sp)
             print(Fore.GREEN + f"Trainig for SP: {new_sp} | i: {i}")
+
+        if is_rand_SP and i_rand_starts.SP_change_i_start <= i:
+            env.set_attr("sp_randomization",1)
+            print(Fore.GREEN + f"SP randomization during run: ON | i: {i}")
+
         if is_rand_PARAMS and i_rand_starts.PARAMS_i_start <= i:
-            new_R = calc_new_param(i,c.R_NOMINAL,c.MAX_R,c.MIN_R)
-            new_L = calc_new_param(i,c.L_NOMINAL,c.MAX_L,c.MIN_L)
-            new_b = calc_new_param(i,c.b_NOMINAL,c.MAX_b,c.MIN_b)
+            new_R = calc_new_param(i- i_rand_starts.PARAMS_i_start,c.ITERATIONS- i_rand_starts.PARAMS_i_start,c.R_NOMINAL,c.MAX_R,c.MIN_R)
+            new_L = calc_new_param(i- i_rand_starts.PARAMS_i_start,c.ITERATIONS- i_rand_starts.PARAMS_i_start,c.L_NOMINAL,c.MAX_L,c.MIN_L)
+            new_b = calc_new_param(i- i_rand_starts.PARAMS_i_start,c.ITERATIONS- i_rand_starts.PARAMS_i_start,c.b_NOMINAL,c.MAX_b,c.MIN_b)
             env.set_attr("R", new_R)
             env.set_attr("L", new_L)
             env.set_attr("b", new_b)
             print(Fore.GREEN + f"Trainig for R: {new_R} | L: {new_L} | b: {new_b} |i: {i}")
         if is_rand_LOAD and i_rand_starts.LOAD_i_start <= i:
-            new_load = calc_new_load(i)
+            new_load = calc_new_load(i-i_rand_starts.LOAD_i_start,c.ITERATIONS-i_rand_starts.LOAD_i_start)
             env.set_attr("load",new_load)
             print(Fore.GREEN + f"Trainig for LOAD: {new_load} | i: {i}")
         env.reset()

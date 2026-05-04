@@ -4,23 +4,39 @@ import numpy as np
 from env.BLDC_motor import BLDCMotor
 from env.PID_controller import PIDController
 import env.CONSTS as c
+from typing import TypedDict, Optional
+from dataclasses import dataclass
+
+@dataclass
+class AimFuncParams:
+    penalty_factor_error: int = 10
+    penalty_factor_current: int = 1
+    penalty_factor_action: int = 1
+    penalty_stall: int = 200
+    reward_velocity: int = 100
+
 
 class BLDCEnv(gym.Env):
-    def __init__(self, penalty_factor_error=10, penalty_factor_current=1, penalty_factor_action=1, penalty_stall=200,reward_velocity=100, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL):
+    def __init__(self, aim_params: Optional[AimFuncParams] = None, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL):
         super(BLDCEnv, self).__init__()
 
+        if aim_params is None:
+            aim_params = AimFuncParams()
+            
         self.dt = 0.001
         self.sim_steps_per_agent_step = 100
         self.motor = BLDCMotor(dt = self.dt,R=R,L=L,b=b)
         self.total_time = c.MAX_TOTAL_TIME
-        self.targeted_speed = c.BEAUTIFUL_SP
-        self.load = c.BEAUTIFUL_LOAD
+        self.targeted_speed = c.NOMINAL_SP
+        self.sp_randomization=0
+        self.steps_to_sp_change=np.random.uniform(c.MIN_SP_CHANGE_TIME,c.MAX_SP_CHANGE_TIME)
+        self.load = c.NOMINAL_LOAD
 
-        self.penalty_factor_error=penalty_factor_error
-        self.penalty_factor_current=penalty_factor_current
-        self.penalty_factor_action = penalty_factor_action
-        self.reward_velocity = reward_velocity
-        self.penalty_stall=penalty_stall
+        self.penalty_factor_error=aim_params.penalty_factor_error
+        self.penalty_factor_current=aim_params.penalty_factor_current
+        self.penalty_factor_action = aim_params.penalty_factor_action
+        self.reward_velocity = aim_params.reward_velocity
+        self.penalty_stall= aim_params.penalty_stall
 
         self.previous_err=0
 
@@ -147,6 +163,12 @@ class BLDCEnv(gym.Env):
         
         # 1 krok RL = 100 kroków modelu
 
+        if(self.sp_randomization):
+            if(self.steps_to_sp_change<=0):
+                self.steps_to_sp_change=np.random.uniform(c.MIN_SP_CHANGE_TIME,c.MAX_SP_CHANGE_TIME)
+                self.targeted_speed=np.random.uniform(c.MIN_SP,c.MAX_SP)
+            self.steps_to_sp_change -=1
+
         for _ in range(self.sim_steps_per_agent_step):
             voltage = self.PID.get_action(self.targeted_speed, self.motor.current_speed)
             speed, current = self.motor.sim_step(voltage, self.load)
@@ -154,6 +176,7 @@ class BLDCEnv(gym.Env):
             error = self.targeted_speed - speed
             
             total_reward += self.aim_func(error,current,speed)
+
 
         # uśrednianie żeby uniknąć wielkich liczb 
         total_reward = total_reward/1000000000

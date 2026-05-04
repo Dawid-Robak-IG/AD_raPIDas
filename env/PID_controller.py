@@ -7,15 +7,20 @@ class PIDController:
         self.dt = dt
         self.integral = 0
         self.prev_error = 0
+        self.prev_output=0
     def get_action(self, setpoint, measured_value):
         error = setpoint - measured_value
         self.integral += (error+self.prev_error)*0.5*self.dt # zmiana metody całkowania na trapezy
         derivative = (error-self.prev_error) / self.dt
         
         output = (self.kp * error) + np.clip((self.kp/self.Ti * self.integral), self.out_min, self.out_max) + (self.kp*self.Td*derivative) # clipowanie całki dopiero po mnożeniu
+        output = np.clip(output, self.out_min, self.out_max)
 
         self.prev_error = error
-        return np.clip(output, self.out_min, self.out_max) # clipowanie outputu
+        self.prev_output=output
+
+        return output
     def reset(self):
         self.integral=0
         self.prev_error=0
+        self.prev_output=0

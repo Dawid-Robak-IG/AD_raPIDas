@@ -1,12 +1,10 @@
 MIN_SP = 300.0
 MAX_SP = 2000
-TIMESTEPS = 50000
-ITERATIONS = 10
-BEAUTIFUL_SP = 1000.0
+NOMINAL_SP = 1000.0
 
 MIN_LOAD = 0.01
 MAX_LOAD = 0.08
-BEAUTIFUL_LOAD = 0.02
+NOMINAL_LOAD = 0.02
 
 R_NOMINAL = 0.2
 L_NOMINAL = 0.0005
@@ -26,15 +24,21 @@ CPU_AMOUNT = 12
 
 
 MIN_KP = 0.00001 # !!!, żeby % zmiana zawsze coś dawała
-MIN_TI = 0.001   # tutaj jest na odwrót, więc to jest max waga całki
+MIN_TI = 0.00001   # tutaj jest na odwrót, więc to jest max waga całki
 MIN_TD = 0.00001
 
 MAX_KP = 10.0
 MAX_TI = 1000    # tutaj jest na odwrót, więc to jest min waga całki
-MAX_TD = 1
+MAX_TD = 10
 
 # akcje w %
 MIN_ACT = -5
 MAX_ACT = 5
 
-MAX_TOTAL_TIME = 40
+
+TIMESTEPS = 50000 # liczba kroków agenta na jedną iterację treningu
+ITERATIONS = 10 # liczba iteracji treningu agenta
+MAX_TOTAL_TIME = 30 # czas w sekundach w pojedynczym runie w trenowaniu (t[s])
+
+MIN_SP_CHANGE_TIME = 50 #minimalny odstęp między losowymi skokami w trenowaniu w krokach agenta(t[s]*10)
+MAX_SP_CHANGE_TIME = MAX_TOTAL_TIME*10/2 #maksymalny odstęp między losowymi skokami w trenowaniu w krokach agenta(t[s]*10)

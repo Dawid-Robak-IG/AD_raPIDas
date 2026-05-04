@@ -143,3 +143,15 @@
 - <span style="color: green;">(DR)</span> Added possibility of training with changing SP, PARAMS, LOAD in one time. After 1/3rd of all iteration it starts to change another thing. From start SP, then PARAMS, then LOAD
 - <span style="color: green;">(DR)</span> Added function to evaluate agent controlling in changing sp environment
 - <span style="color: green;">(DR)</span> Hotfix way of changing floating SP values
+
+## Week 2026-04-29 to 2026-05-05
+
+- <span style="color: blue;">(KS)</span> Changed test_rl call arguments (n sp changes).
+- <span style="color: blue;">(KS)</span> Added randomization of sp change timestemps in test_rl.
+- <span style="color: blue;">(KS)</span> Chenged test_rl plots.
+- <span style="color: blue;">(KS)</span> Changed training plan - 30s runs from reset to reset
+- <span style="color: blue;">(KS)</span> Fixed malfuctioning training random ranges calculation (ctr+c ctrl+v typo).
+- <span style="color: blue;">(KS)</span> Changed PID gains limits.
+- <span style="color: blue;">(KS)</span> Added randomized SP changes during train run. 
+- <span style="color: blue;">(KS)</span> Packed env aim params into object.
+- <span style="color: blue;">(KS)</span> Fixed some errors in control eval function.
