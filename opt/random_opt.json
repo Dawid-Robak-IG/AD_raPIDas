@@ -1,0 +1,8 @@
+{
+  "best_parameters": {
+    "learning_rate": 6.445478386083428e-05,
+    "n_steps": 256,
+    "batch_size": 32
+  },
+  "best_score": 739.9384
+}

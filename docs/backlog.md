@@ -165,3 +165,12 @@
 Best parameters: {'learning_rate': 6.445478386083428e-05, 'n_steps': 256, 'batch_size': 32}
 Best score: 739.9384
 ==========
+
+most important:
+- learning rate (70%)
+- n_steps (28%)
+- batch_size (2%)
+
+huge n_steps -> model needs motor to do more steps to be precise in controlling it
+small learning_rate -> model needs to be precise in changing value, it cannot just fastly change values
+small batch_size -> model desn't need to learn on chuge data at once, it need smaller parts of output

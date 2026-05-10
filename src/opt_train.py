@@ -55,7 +55,7 @@ def run_optimization(sampler_type, study_name):
     print(Fore.GREEN + f"Best score: {study.best_value}")
     print(Fore.GREEN + "="*10)
 
-    save_study_plots(study=study)
+    save_study_plots(study=study_name)
 
 def save_study_plots(study):
     import os
