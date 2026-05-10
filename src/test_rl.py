@@ -122,7 +122,7 @@ def get_sp_change_plan(sim_steps, n_sp_changes):
 
 
 def test_model(model_name, algorithm="PPO", is_rand_SP=False, is_rand_PARAMS=False ,is_rand_LOAD=False, 
-               is_SP_floating=False,n_sp_changes=1, sim_time=30 ,is_debug=False):
+               is_SP_floating=False,n_sp_changes=1, sim_time=c.NOMINAL_SIM_TIME ,is_debug=False):
     
     model_name = model_name
     colorama.init(autoreset=True)
@@ -170,7 +170,7 @@ def test_model(model_name, algorithm="PPO", is_rand_SP=False, is_rand_PARAMS=Fal
         action, _ = model.predict(obs, deterministic=True)
         obs, reward, terminated, truncated, info = env.step(action)
         
-        history["t"].append(step * 0.1)
+        history["t"].append(step * c.NOMINAL_TIME_CHANGE)
         history["v"].append(obs[3]*1000)
         history['volt'].append(env.PID.prev_output)
         history['i'].append(obs[4]*100)

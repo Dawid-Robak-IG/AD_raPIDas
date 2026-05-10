@@ -155,3 +155,8 @@
 - <span style="color: blue;">(KS)</span> Added randomized SP changes during train run. 
 - <span style="color: blue;">(KS)</span> Packed env aim params into object.
 - <span style="color: blue;">(KS)</span> Fixed some errors in control eval function.
+
+## Week 2026-05-06 to 2026-05-12
+
+- <span style="color: green;">(DR)</span> Addd optimalization for learning rate, batch size, n_steps
+- <span style="color: green;">(DR)</span> Add fixed evaluation based on ITAE and stabilization

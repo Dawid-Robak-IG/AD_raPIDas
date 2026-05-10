@@ -36,9 +36,14 @@ MIN_ACT = -5
 MAX_ACT = 5
 
 
-TIMESTEPS = 50000 # liczba kroków agenta na jedną iterację treningu
+TIMESTEPS = 30000 # liczba kroków agenta na jedną iterację treningu
 ITERATIONS = 10 # liczba iteracji treningu agenta
 MAX_TOTAL_TIME = 30 # czas w sekundach w pojedynczym runie w trenowaniu (t[s])
 
 MIN_SP_CHANGE_TIME = 50 #minimalny odstęp między losowymi skokami w trenowaniu w krokach agenta(t[s]*10)
 MAX_SP_CHANGE_TIME = MAX_TOTAL_TIME*10/2 #maksymalny odstęp między losowymi skokami w trenowaniu w krokach agenta(t[s]*10)
+
+NOMINAL_SIM_TIME = 30
+NOMINAL_TIME_CHANGE = 0.1
+
+OPTUNA_TRIALS = 10

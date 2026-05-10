@@ -108,7 +108,9 @@ def train(name="", algorithm="PPO", sp=c.NOMINAL_SP, load=c.NOMINAL_LOAD, R=c.R_
 
 
 def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False, 
-                 i_rand_starts: Optional[RandomnessIterationsStarts] = None):
+                 i_rand_starts: Optional[RandomnessIterationsStarts] = None,
+                 learning_rate=3e-4, n_steps=512, batch_size=64,
+                 save_model=True):
     colorama.init(autoreset=True)
     os.makedirs("models",exist_ok=True)
     if i_rand_starts is None:
@@ -127,8 +129,9 @@ def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False,
                 env=env,verbose=1, 
                 tensorboard_log=log_dir, 
                 device="cpu",
-                n_steps = 512,
-                batch_size=64)
+                n_steps = n_steps,
+                batch_size=batch_size,
+                learning_rate=learning_rate)
 
     for i in range(c.ITERATIONS):
         if is_rand_SP and i_rand_starts.SP_init_i_start <= i:
@@ -160,11 +163,13 @@ def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False,
             reset_num_timesteps=False,
             progress_bar=True,
         )
-
-    current_model_path = f"models/bldc_pid_tuner_{model_name}.zip"
-    model.save(current_model_path)
+    if save_model:
+        current_model_path = f"models/bldc_pid_tuner_{model_name}.zip"
+        model.save(current_model_path)
+        print(Fore.GREEN + f"Model saved: models/{run_name}")
+        
     env.close()
-    print(Fore.GREEN + f"Model saved: models/{run_name}")
+    return model
 
 if __name__ == "__main__":
     if(len(sys.argv)>2):
