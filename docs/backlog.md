@@ -160,3 +160,8 @@
 
 - <span style="color: green;">(DR)</span> Addd optimalization for learning rate, batch size, n_steps
 - <span style="color: green;">(DR)</span> Add fixed evaluation based on ITAE and stabilization
+- <span style="color: green;">(DR)</span> Got random optimalization:
+==========
+Best parameters: {'learning_rate': 6.445478386083428e-05, 'n_steps': 256, 'batch_size': 32}
+Best score: 739.9384
+==========
