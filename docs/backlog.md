@@ -174,3 +174,85 @@ most important:
 huge n_steps -> model needs motor to do more steps to be precise in controlling it
 small learning_rate -> model needs to be precise in changing value, it cannot just fastly change values
 small batch_size -> model desn't need to learn on chuge data at once, it need smaller parts of output
+
+
+błąd: lip_range           | 0.2         |
+|    entropy_loss         | -2.43       |
+|    explained_variance   | 0.266       |
+|    learning_rate        | 0.00118     |
+|    loss                 | 0.0396      |
+|    n_updates            | 490         |
+|    policy_gradient_loss | -9.16e-05   |
+|    std                  | 0.602       |
+|    value_loss           | 0.0906      |
+-----------------------------------------
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 30,720/30,000  [ 0:00:29 < 0:00:00 , 846 it/s ]
+Testing with: SP=1000.0, LOAD=0.02
+            : R=0.200, L=0.000500, b=0.000010
+DEBUG: dt for calculating evaluation: 0.1
+[I 2026-05-12 04:06:34,768] Trial 9 finished with value: 2234.477 and parameters: {'learning_rate': 0.0011829396044384206, 'n_steps': 512, 'batch_size': 32}. Best is trial 1 with value: 635.6678.
+==========
+Best parameters: {'learning_rate': 0.0012678873537958547, 'n_steps': 1024, 'batch_size': 32}
+Best score: 635.6678
+==========
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/src/opt_train.py", line 124, in <module>
+    make_bayes_search()
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/src/opt_train.py", line 77, in make_bayes_search
+    run_optimization(TPESampler(), "bayes_search_ppo")
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/src/opt_train.py", line 58, in run_optimization
+    save_study_plots(study=study_name)
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/src/opt_train.py", line 65, in save_study_plots
+    vis.plot_optimization_history(study).write_html(f"opt_plots/{study}_history.html")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/.venv/lib/python3.12/site-packages/optuna/visualization/_optimization_history.py", line 202, in plot_optimization_history
+    info_list = _get_optimization_history_info_list(study, target, target_name, error_bar)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/.venv/lib/python3.12/site-packages/optuna/visualization/_optimization_history.py", line 53, in _get_optimization_history_info_list
+    _check_plot_args(study, target, target_name)
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/.venv/lib/python3.12/site-packages/optuna/visualization/_utils.py", line 60, in _check_plot_args
+    if target is None and any(study._is_multi_objective() for study in studies):
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/.venv/lib/python3.12/site-packages/optuna/visualization/_utils.py", line 60, in <genexpr>
+    if target is None and any(study._is_multi_objective() for study in studies):
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute '_is_multi_objective'
+(ad-rapidas-py3.12) suka@witek:~/Dokumenty/AI/AD_raPIDas$ 
+(ad-rapidas-py3.12) suka@witek:~/Dokumenty/AI/AD_raPIDas$ 
+(ad-rapidas-py3.12) suka@witek:~/Dokumenty/AI/AD_raPIDas$ 
+
+
+Testing with: SP=1000.0, LOAD=0.02
+            : R=0.200, L=0.000500, b=0.000010
+DEBUG: dt for calculating evaluation: 0.1
+[I 2026-05-12 05:07:17,497] Trial 19 finished with value: 857.9875 and parameters: {'learning_rate': 0.0006130390479189377, 'n_steps': 1024, 'batch_size': 128}. Best is trial 1 with value: 635.6678.
+==========
+Best parameters: {'learning_rate': 0.0012678873537958547, 'n_steps': 1024, 'batch_size': 32}
+Best score: 635.6678
+==========
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/src/opt_train.py", line 124, in <module>
+    make_bayes_search()
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/src/opt_train.py", line 77, in make_bayes_search
+    run_optimization(TPESampler(), "bayes_search_ppo")
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/src/opt_train.py", line 58, in run_optimization
+    save_study_plots(study=study_name)
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/src/opt_train.py", line 65, in save_study_plots
+    vis.plot_optimization_history(study).write_html(f"opt_plots/{study}_history.html")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/.venv/lib/python3.12/site-packages/optuna/visualization/_optimization_history.py", line 202, in plot_optimization_history
+    info_list = _get_optimization_history_info_list(study, target, target_name, error_bar)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/.venv/lib/python3.12/site-packages/optuna/visualization/_optimization_history.py", line 53, in _get_optimization_history_info_list
+    _check_plot_args(study, target, target_name)
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/.venv/lib/python3.12/site-packages/optuna/visualization/_utils.py", line 60, in _check_plot_args
+    if target is None and any(study._is_multi_objective() for study in studies):
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suka/Dokumenty/AI/AD_raPIDas/.venv/lib/python3.12/site-packages/optuna/visualization/_utils.py", line 60, in <genexpr>
+    if target is None and any(study._is_multi_objective() for study in studies):
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute '_is_multi_objective'
