@@ -80,7 +80,8 @@ def opt_show(arg_study_name):
     colorama.init(autoreset=True)
 
     # 1. Połączenie z istniejącą bazą danych
-    storage_url = "sqlite:///optuna_study.db"
+    study_name = f"{arg_study_name}_search_ppo"
+    storage_url = f"sqlite:///optuna_study_{study_name}.db"
     if arg_study_name == "random":
         study_name = "random_search_ppo" # Upewnij się, że nazwa jest identyczna jak w opt_train.py
     elif arg_study_name == "bayes":
@@ -97,10 +98,10 @@ def opt_show(arg_study_name):
         os.makedirs("opt_plots", exist_ok=True)
         
         print("Generuję wykresy...")
-        vis.plot_optimization_history(study).write_html("opt_plots/history.html")
-        vis.plot_parallel_coordinate(study).write_html("opt_plots/correlations.html")
-        vis.plot_param_importances(study).write_html("opt_plots/importance.html")
-        vis.plot_slice(study).write_html("opt_plots/slices.html")
+        vis.plot_optimization_history(study).write_html(f"opt_plots/{arg_study_name}_history.html")
+        vis.plot_parallel_coordinate(study).write_html(f"opt_plots/{arg_study_name}_correlations.html")
+        vis.plot_param_importances(study).write_html(f"opt_plots/{arg_study_name}_importance.html")
+        vis.plot_slice(study).write_html(f"opt_plots/{arg_study_name}_slices.html")
         
         print(Fore.YELLOW + "Gotowe! Wykresy znajdziesz w folderze /opt_plots")
 
