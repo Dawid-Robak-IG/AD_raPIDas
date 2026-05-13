@@ -69,9 +69,9 @@ def get_model(algorithm, env, model_path=None):
         model = algo_class("MlpPolicy", env=env, verbose=1, tensorboard_log=log_dir, device="cpu")
     return model,log_dir
 
-def make_env(rank, seed=0, sp=c.NOMINAL_SP, load=c.NOMINAL_LOAD, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL):
+def make_env(rank, seed=0, sp=c.NOMINAL_SP, load=c.NOMINAL_LOAD, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL, aim_params=None):
     def _init():
-        env = BLDCEnv(R=R,L=L,b=b)
+        env = BLDCEnv(R=R,L=L,b=b,aim_params=aim_params)
         env.targeted_speed = sp
         env.load = load
         env.reset(seed=int(seed+rank))
@@ -79,7 +79,7 @@ def make_env(rank, seed=0, sp=c.NOMINAL_SP, load=c.NOMINAL_LOAD, R=c.R_NOMINAL, 
     set_random_seed(seed)
     return _init
 
-def train(name="", algorithm="PPO", sp=c.NOMINAL_SP, load=c.NOMINAL_LOAD, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL ,model_path="", num_cpu=c.CPU_AMOUNT):
+def train(name="", algorithm="PPO", sp=c.NOMINAL_SP, load=c.NOMINAL_LOAD, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL,aim_params=None ,model_path="", num_cpu=c.CPU_AMOUNT):
     colorama.init(autoreset=True)
     os.makedirs("models",exist_ok=True)
     if name=="":
@@ -88,7 +88,7 @@ def train(name="", algorithm="PPO", sp=c.NOMINAL_SP, load=c.NOMINAL_LOAD, R=c.R_
     else:
         run_name  = f"bldc_pid_tuner_{name}"
 
-    env = SubprocVecEnv([make_env(sp=sp,load=load,R=R,L=L,b=b,rank=i) for i in range(num_cpu)])
+    env = SubprocVecEnv([make_env(sp=sp,load=load,R=R,L=L,b=b,aim_params=aim_params,rank=i) for i in range(num_cpu)])
 
     model, log_dir = get_model(algorithm, env, model_path)
 
@@ -108,7 +108,7 @@ def train(name="", algorithm="PPO", sp=c.NOMINAL_SP, load=c.NOMINAL_LOAD, R=c.R_
 
 
 def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False, 
-                 i_rand_starts: Optional[RandomnessIterationsStarts] = None,
+                 i_rand_starts: Optional[RandomnessIterationsStarts] = None, aim_params=None,
                  learning_rate=3e-4, n_steps=512, batch_size=64,
                  save_model=True):
     colorama.init(autoreset=True)
@@ -122,7 +122,7 @@ def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False,
         }
     model_name = get_dyn_name(is_rand_SP=is_rand_SP, is_rand_PARAMS=is_rand_PARAMS, is_rand_LOAD=is_rand_LOAD)
 
-    env = SubprocVecEnv([make_env(rank=i) for i in range(c.CPU_AMOUNT)])
+    env = SubprocVecEnv([make_env(rank=i,aim_params=aim_params) for i in range(c.CPU_AMOUNT)])
     log_dir = f"./ppo_bldc_logs/"
     run_name  = f"bldc_pid_tuner" +  model_name
     model = PPO("MlpPolicy",
