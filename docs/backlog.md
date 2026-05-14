@@ -184,6 +184,11 @@ huge n_steps -> model needs motor to do more steps to be precise in controlling 
 small learning_rate -> model needs to be precise in changing value, it cannot just fastly change values
 small batch_size -> model desn't need to learn on chuge data at once, it need smaller parts of output
 
+Best score for bayes:
+Najlepszy wynik (ITAE): 635.6678
+Najlepsze parametry: {'learning_rate': 0.0012678873537958547, 'n_steps': 1024, 'batch_size': 32}
+
+
 
 ## Week 2026-05-13 to 2026-05-19
 

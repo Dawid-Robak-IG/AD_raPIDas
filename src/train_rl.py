@@ -109,7 +109,7 @@ def train(name="", algorithm="PPO", sp=c.NOMINAL_SP, load=c.NOMINAL_LOAD, R=c.R_
 
 def train_random(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False, 
                  i_rand_starts: Optional[RandomnessIterationsStarts] = None, aim_params=None,
-                 learning_rate=3e-4, n_steps=512, batch_size=64,
+                 learning_rate=c.PPO_LR, n_steps=c.PPO_N_STEPS, batch_size=c.PPO_BATCH_SIZE,
                  save_model=True):
     colorama.init(autoreset=True)
     os.makedirs("models",exist_ok=True)
