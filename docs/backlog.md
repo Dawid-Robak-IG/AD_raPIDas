@@ -156,6 +156,15 @@
 - <span style="color: blue;">(KS)</span> Packed env aim params into object.
 - <span style="color: blue;">(KS)</span> Fixed some errors in control eval function.
 
+<table style="width: 100%; border: none;">
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/KS_02_04.jpg" width="600px"><br>
+      <b>Progres in control quality</b>
+    </td>
+  </tr>
+</table>
+
 ## Week 2026-05-06 to 2026-05-12
 
 - <span style="color: green;">(DR)</span> Addd optimalization for learning rate, batch size, n_steps
@@ -175,10 +184,19 @@ huge n_steps -> model needs motor to do more steps to be precise in controlling 
 small learning_rate -> model needs to be precise in changing value, it cannot just fastly change values
 small batch_size -> model desn't need to learn on chuge data at once, it need smaller parts of output
 
-- <span style="color: blue;">(KS)</span> Made optimalization for bayes
+Best score for bayes:
+Najlepszy wynik (ITAE): 635.6678
+Najlepsze parametry: {'learning_rate': 0.0012678873537958547, 'n_steps': 1024, 'batch_size': 32}
 
-==========
-Best parameters: {'learning_rate': 0.0012678873537958547, 'n_steps': 1024, 'batch_size': 32}
-Best score: 635.6678
-==========
 
+
+## Week 2026-05-13 to 2026-05-19
+
+- <span style="color: blue;">(KS)</span> Fixed bugs in plot generating functions.
+- <span style="color: blue;">(KS)</span> Changed opt stript call arguments.
+- <span style="color: blue;">(KS)</span> Added db name changing script (AI generated).
+- <span style="color: blue;">(KS)</span> Updated existing databases to match new names.
+- <span style="color: blue;">(KS)</span> Added option to search for aim function params to opt_train.
+- <span style="color: blue;">(KS)</span> Done some iterations of opt_train for model params.
+- <span style="color: blue;">(KS)</span> Applied best found params as default model params.
+- <span style="color: blue;">(KS)</span> Tested opt_train for aim params.
