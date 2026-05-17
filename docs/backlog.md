@@ -170,10 +170,12 @@
 - <span style="color: green;">(DR)</span> Addd optimalization for learning rate, batch size, n_steps
 - <span style="color: green;">(DR)</span> Add fixed evaluation based on ITAE and stabilization
 - <span style="color: green;">(DR)</span> Got random optimalization:
-==========
+
+```
+RANDOM:
 Best parameters: {'learning_rate': 6.445478386083428e-05, 'n_steps': 256, 'batch_size': 32}
 Best score: 739.9384
-==========
+```
 
 most important:
 - learning rate (70%)
@@ -184,10 +186,11 @@ huge n_steps -> model needs motor to do more steps to be precise in controlling 
 small learning_rate -> model needs to be precise in changing value, it cannot just fastly change values
 small batch_size -> model desn't need to learn on chuge data at once, it need smaller parts of output
 
-Best score for bayes:
-Najlepszy wynik (ITAE): 635.6678
-Najlepsze parametry: {'learning_rate': 0.0012678873537958547, 'n_steps': 1024, 'batch_size': 32}
-
+```
+BAYES:
+Best parameters: {'learning_rate': 0.0012678873537958547, 'n_steps': 1024, 'batch_size': 32}
+Best score: 635.6678
+```
 
 
 ## Week 2026-05-13 to 2026-05-19
@@ -200,3 +203,83 @@ Najlepsze parametry: {'learning_rate': 0.0012678873537958547, 'n_steps': 1024, '
 - <span style="color: blue;">(KS)</span> Done some iterations of opt_train for model params.
 - <span style="color: blue;">(KS)</span> Applied best found params as default model params.
 - <span style="color: blue;">(KS)</span> Tested opt_train for aim params.
+
+
+- <span style="color: green;">(DR)</span> Updated gitignore to ignore logs from training
+- <span style="color: green;">(DR)</span> Translated some polish words to english
+- <span style="color: green;">(DR)</span> Added plots for optimalization training in backlog
+- <span style="color: green;">(DR)</span> Added best result for aim to backlog
+- <span style="color: green;">(DR)</span> Added interpretation for bayes search algorithm
+- <span style="color: green;">(DR)</span> Added interpretation for aim function bayes search algorithm
+
+### RANDOM
+<table style="width: 100%; border: none;">
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/random_corr.png" width="600px"><br>
+      <b>Correlation for random optimalization</b>
+    </td>
+  </tr>
+</table>
+<table style="width: 100%; border: none;">
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/random_importance.png" width="600px"><br>
+      <b>Importance for random optimalization</b>
+    </td>
+  </tr>
+</table>
+
+### BAYES
+<table style="width: 100%; border: none;">
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/bayes_corr.png" width="600px"><br>
+      <b>Correlation for bayes optimalization</b>
+    </td>
+  </tr>
+</table>
+<table style="width: 100%; border: none;">
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/bayes_importance.png" width="600px"><br>
+      <b>Importance for bayes optimalization</b>
+    </td>
+  </tr>
+</table>
+
+#### Interpretations
+Bayes search found out that controlling motor demands more data in time (big n_steps) and it the amount of history available for controlling is the most crucial parameter (80% importance). For bayes learning_rate and batch_size brings similar importnace in training (18% and 22%). Bayes search found that average size batch_size is the best (similar to random search). Although bayes search gives much higher learning_rate which means better training goes with higher changing possibilities (random search gave extremely low and learning_rate -> stable and slow training).
+
+### AIM ON BAYES
+<table style="width: 100%; border: none;">
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/aim_bayes_corr.png" width="600px"><br>
+      <b>Correlation for aim optimalization (based on basey optimalization)</b>
+    </td>
+  </tr>
+</table>
+<table style="width: 100%; border: none;">
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="figs/aim_bayes_importance.png" width="600px"><br>
+      <b>Importance for aim optimalization (based on basey optimalization)</b>
+    </td>
+  </tr>
+</table>
+
+```
+AIM (BAYES):
+Best score (ITAE): 743.245
+Best parameters: {'p_factor_error': 25.311329218312043, 'p_factor_current': 117.53556791761935, 'p_factor_action': 10.993922073632756, 'p_factor_stall': 26.509069023726095, 'r_velocity': 226.18381058857284}
+```
+
+#### Interpretation
+Optimalization of aim function with bayes search algorithm showed that aim function:
+- penatly error multiplier needs to be 2.5 higher than nominal one (nominal 10, found 25), it means training demands higher penalty for error in order to achieve precision in achieving targeted speed (ITAE score),
+- error for current needs to be extremely high (nominal 1 went to 117), it means controlling needs to be cosious about current drain, which is logical due to the fact that current is mostly going up when going from one speed to another, so minimalizing it makes it shorter to acheive new targeted speed, and this is correct with score measurment based on ITAE
+- penatly for fitter (p_factor_action) also went much up (1 to 11), which probably ensure to be precise in staying close to targeted speed without channging PID too much
+- penatly for stall went much lower (200 to 26), it means that there was probably no occurrence of destroying coils (high current with no speed)
+- reward for achieving targeted speed went 2.5 times up from nominal. This means training was much better for ITAE score when precision was higher (longer staying in targeted speed), which also it correct with ITAE measurment
+

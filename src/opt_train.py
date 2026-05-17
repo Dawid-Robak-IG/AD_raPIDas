@@ -140,21 +140,21 @@ def opt_show(arg_policy, arg_type):
     try:
         study = optuna.load_study(study_name=study_name, storage=storage_url)
         
-        print(Fore.CYAN + f"Wczytano badanie: {study_name}")
-        print(Fore.GREEN + f"Najlepszy wynik (ITAE): {study.best_value}")
-        print(Fore.GREEN + f"Najlepsze parametry: {study.best_params}")
+        print(Fore.CYAN + f"Loaded study: {study_name}")
+        print(Fore.GREEN + f"Best score (ITAE): {study.best_value}")
+        print(Fore.GREEN + f"Best parameters: {study.best_params}")
 
         # 2. Generowanie wykresów
         dir_name=f"opt_plots/{arg_type}/{arg_policy}"
         os.makedirs(f"{dir_name}", exist_ok=True)
         
-        print("Generuję wykresy...")
+        print("Generating plots...")
         vis.plot_optimization_history(study).write_html(f"{dir_name}/history.html")
         vis.plot_parallel_coordinate(study).write_html(f"{dir_name}/correlations.html")
         vis.plot_param_importances(study).write_html(f"{dir_name}/importance.html")
         vis.plot_slice(study).write_html(f"{dir_name}/slices.html")
         
-        print(Fore.YELLOW + f"Gotowe! Wykresy znajdziesz w folderze /{dir_name}")
+        print(Fore.YELLOW + f"SUCCESS! Plots save in /{dir_name}")
 
     except Exception as e:
         print(Fore.RED + f"Błąd: {e}")
