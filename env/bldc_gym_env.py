@@ -7,13 +7,23 @@ import env.CONSTS as c
 from typing import TypedDict, Optional
 from dataclasses import dataclass
 
+# POPRZEDNIE WARTOŚCI
+# @dataclass
+# class AimFuncParams:
+#     penalty_factor_error: int = 10
+#     penalty_factor_current: int = 1
+#     penalty_factor_action: int = 1
+#     penalty_stall: int = 200
+#     reward_velocity: int = 100
+
+# WARTOŚCI OPTYMALNE (BAYES)
 @dataclass
 class AimFuncParams:
-    penalty_factor_error: int = 10
-    penalty_factor_current: int = 1
-    penalty_factor_action: int = 1
-    penalty_stall: int = 200
-    reward_velocity: int = 100
+    penalty_factor_error: float = c.OPT_p_factor_error
+    penalty_factor_current: float = c.OPT_p_factor_current
+    penalty_factor_action: float = c.OPT_p_factor_action
+    penalty_stall: float = c.OPT_p_factor_stall
+    reward_velocity: float = c.OPT_r_velocity
 
 
 class BLDCEnv(gym.Env):
