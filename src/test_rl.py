@@ -11,7 +11,8 @@ import sys
 import env.CONSTS as c
 import argparse
 
-def make_env(is_rand_SP=False, is_rand_PARAMS=False ,is_rand_LOAD=False):
+def make_env(is_rand_SP=False, is_rand_PARAMS=False ,is_rand_LOAD=False,
+             noise_w = 0.1, noise_I = 0.001, noise_V = 0.001, noise_Tl = 0.001):
     if (is_rand_SP):
         targeted_speed = np.random.uniform(c.MIN_SP, c.MAX_SP)
     else:
@@ -33,7 +34,8 @@ def make_env(is_rand_SP=False, is_rand_PARAMS=False ,is_rand_LOAD=False):
 
     env = BLDCEnv(R=targeted_R,
                   L=targeted_L,
-                  b=targeted_b)
+                  b=targeted_b,
+                  noise_I=noise_I,noise_V=noise_V,noise_Tl=noise_Tl,noise_w=noise_w)
     env.targeted_speed = targeted_speed
     env.load = targeted_LOAD
     print(Fore.GREEN + f"Testing with: SP={targeted_speed}, LOAD={targeted_LOAD}")
@@ -122,13 +124,15 @@ def get_sp_change_plan(sim_steps, n_sp_changes):
 
 
 def test_model(model_name, algorithm="PPO", is_rand_SP=False, is_rand_PARAMS=False ,is_rand_LOAD=False, 
-               is_SP_floating=False,n_sp_changes=1, sim_time=c.NOMINAL_SIM_TIME ,is_debug=False):
+               is_SP_floating=False,n_sp_changes=1, sim_time=c.NOMINAL_SIM_TIME ,is_debug=False,
+               noise_w = 0.1, noise_I = 0.001, noise_V = 0.001, noise_Tl = 0.001):
     
     model_name = model_name
     colorama.init(autoreset=True)
     sim_steps=sim_time*10
 
-    env = make_env(is_rand_LOAD=is_rand_LOAD,is_rand_SP=is_rand_SP,is_rand_PARAMS=is_rand_PARAMS)
+    env = make_env(is_rand_LOAD=is_rand_LOAD,is_rand_SP=is_rand_SP,is_rand_PARAMS=is_rand_PARAMS,
+                   noise_I=noise_I,noise_V=noise_V,noise_Tl=noise_Tl,noise_w=noise_w)
 
     model_path = f"models/bldc_pid_tuner_{model_name}.zip"
 
@@ -204,6 +208,10 @@ if __name__ == "__main__":
     parser.add_argument("--algorithm", type=str, default="PPO", help="Choose algorithm")
     parser.add_argument("--debug", action="store_true", help="Turn on debug logs")
     parser.add_argument("-t","--time", type=int, default=30, help="Duration of simulation")
+    parser.add_argument('-n_I',"--noise_current", type=float, default=0.001, help="Noise level of current")
+    parser.add_argument('-n_w',"--noise_velocity", type=float, default=0.1, help="Noise level of velocity")
+    parser.add_argument('-n_V',"--noise_voltage", type=float, default=0.001, help="Noise level of voltage")
+    parser.add_argument('-n_tl',"--noise_torque", type=float, default=0, help="Noise level of load")
 
     args = parser.parse_args()
 
@@ -214,7 +222,11 @@ if __name__ == "__main__":
                is_rand_PARAMS=args.rand_params or args.random_full,
                is_SP_floating=args.floating_SP or args.random_full,
                n_sp_changes=args.sp_changes,
-               is_debug = args.debug)
+               is_debug = args.debug,
+               noise_I=args.noise_current,
+               noise_w=args.noise_velocity,
+               noise_V=args.noise_voltage,
+               noise_Tl=args.noise_torque)
 
     
     

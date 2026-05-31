@@ -81,7 +81,7 @@ def print_eval(dict):
     print(Fore.LIGHTRED_EX + "Control evaluation:")
     print(Fore.LIGHTRED_EX + f"ISE: {dict["ISE"]:.3f}")
     print(Fore.LIGHTRED_EX + f"IAE: {dict["IAE"]:.3f}")
-    print(Fore.LIGHTRED_EX + f"ITEA: {dict["ITEA"]:.3f}")
+    print(Fore.LIGHTRED_EX + f"ITAE: {dict["ITAE"]:.3f}")
     print(Fore.LIGHTRED_EX + f"ESS: {dict["ESS"]:.3f}")
     print(Fore.LIGHTRED_EX + f"MAX_OVERSHOOT: {dict["MAX_DIFF"]:.3f} [%]")
     print(Fore.LIGHTRED_EX + f"MEAN_SETTLING_TIME: {dict["MEAN_SETTLING_TIME"]:.4f} [sec]")

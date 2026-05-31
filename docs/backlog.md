@@ -283,3 +283,4 @@ Optimalization of aim function with bayes search algorithm showed that aim funct
 - penatly for stall went much lower (200 to 26), it means that there was probably no occurrence of destroying coils (high current with no speed)
 - reward for achieving targeted speed went 2.5 times up from nominal. This means training was much better for ITAE score when precision was higher (longer staying in targeted speed), which also it correct with ITAE measurment
 
+- <span style="color: green;">(DR)</span> Added flags for different noise level (current, voltage, velocity, torgue)

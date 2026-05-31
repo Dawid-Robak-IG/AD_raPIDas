@@ -17,7 +17,8 @@ class AimFuncParams:
 
 
 class BLDCEnv(gym.Env):
-    def __init__(self, aim_params: Optional[AimFuncParams] = None, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL):
+    def __init__(self, aim_params: Optional[AimFuncParams] = None, R=c.R_NOMINAL, L=c.L_NOMINAL, b=c.b_NOMINAL,
+                 noise_w = 0.1, noise_I = 0.001, noise_V = 0.001, noise_Tl = 0.001):
         super(BLDCEnv, self).__init__()
 
         if aim_params is None:
@@ -25,7 +26,7 @@ class BLDCEnv(gym.Env):
             
         self.dt = 0.001
         self.sim_steps_per_agent_step = 100
-        self.motor = BLDCMotor(dt = self.dt,R=R,L=L,b=b)
+        self.motor = BLDCMotor(dt = self.dt,R=R,L=L,b=b,noise_I=noise_I,noise_V=noise_V,noise_Tl=noise_Tl,noise_w=noise_w)
         self.total_time = c.MAX_TOTAL_TIME
         self.targeted_speed = c.NOMINAL_SP
         self.sp_randomization=0
