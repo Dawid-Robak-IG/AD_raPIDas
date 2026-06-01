@@ -174,7 +174,7 @@ def test_model(model_name, algorithm="PPO", is_rand_SP=False, is_rand_PARAMS=Fal
         action, _ = model.predict(obs, deterministic=True)
         obs, reward, terminated, truncated, info = env.step(action)
         
-        history["t"].append(step * c.NOMINAL_TIME_CHANGE)
+        history["t"].append((step + 1) * c.NOMINAL_TIME_CHANGE)
         history["v"].append(obs[3]*1000)
         history['volt'].append(env.PID.prev_output)
         history['i'].append(obs[4]*100)
@@ -198,20 +198,26 @@ if __name__ == "__main__":
     colorama.init(autoreset=True)
     parser = argparse.ArgumentParser(description="Testing trained model parser")
 
-    parser.add_argument("--name", type=str, default="num1", help="Name of model")    
+    parser.add_argument("--name", type=str, default="num1", help="Name of model")  
+
     parser.add_argument("--rand_sp", action="store_true", help="Turn on rand SetPoint")
     parser.add_argument("--rand_params", action="store_true", help="Turn on rand Parameters (R, L, b)")
     parser.add_argument("--rand_load", action="store_true", help="Turn on rand Load")
+
     parser.add_argument("--floating_SP", action="store_true", help="Turn on floating sp while testing time")
     parser.add_argument("--sp_changes", type=int, default=4, help="Number of SP random changes")
     parser.add_argument("-r","--random_full", action="store_true", help="Turn on full randomization")
+
     parser.add_argument("--algorithm", type=str, default="PPO", help="Choose algorithm")
     parser.add_argument("--debug", action="store_true", help="Turn on debug logs")
     parser.add_argument("-t","--time", type=int, default=30, help="Duration of simulation")
+
     parser.add_argument('-n_I',"--noise_current", type=float, default=0.001, help="Noise level of current")
     parser.add_argument('-n_w',"--noise_velocity", type=float, default=0.1, help="Noise level of velocity")
     parser.add_argument('-n_V',"--noise_voltage", type=float, default=0.001, help="Noise level of voltage")
     parser.add_argument('-n_tl',"--noise_torque", type=float, default=0, help="Noise level of load")
+
+    parser.add_argument('--max_tl',action="store_true",help="After half time it thinks there is max Tl")
 
     args = parser.parse_args()
 

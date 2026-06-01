@@ -91,23 +91,19 @@ def fixed_eval(trained_model):
     env = src.test_rl.make_env(is_rand_SP=False, is_rand_PARAMS=False, is_rand_LOAD=False)
     obs, _ = env.reset()
     
-    # Inicjalizacja PUSTYCH list (zapobiega dt=0)
     history = {"t": [], "v": [], "target": []} 
     sim_steps = c.NOMINAL_SIM_TIME * 10
 
-    # Zdefiniujmy zestaw testowy (np. dwa skoki prędkości dla lepszej oceny)
-    test_setpoints = [800, 1500, 500] # Stała sekwencja dla każdego modelu
+    test_setpoints = [800, 1500, 500]
     steps_per_sp = sim_steps // len(test_setpoints)
 
     for i, sp in enumerate(test_setpoints):
-        env.targeted_speed = sp # Ustawiamy konkretny cel
+        env.targeted_speed = sp
         env.obs_reset()
         for _ in range(steps_per_sp):
             action, _ = trained_model.predict(obs, deterministic=True)
             obs, reward, terminated, truncated, info = env.step(action)
             
-            # Zbieramy dane
-            # Używamy globalnego licznika kroków dla czasu
             current_step = len(history["t"])
             history["t"].append(current_step * c.NOMINAL_TIME_CHANGE)
             history["v"].append(obs[3] * 1000)
@@ -115,17 +111,12 @@ def fixed_eval(trained_model):
 
             if terminated: break
 
-    # Używamy Twojej dopracowanej funkcji do obliczeń
-    # calculate_evaluations zwraca słownik z ISE, IAE, ITAE, ESS, itd.
     results = calculate_evaluations(np.array(history["t"]), 
                                     np.array(history["v"]), 
                                     np.array(history["target"]))
     
-    # Zwracamy ITAE do MINIMALIZACJI przez Optunę
-    # Jeśli model się nie ustalił (MEAN_SETTLING_TIME == -1), 
-    # możemy "ukarać" wynik, dodając dużą karę (Penalty)
     score = results["ITAE"]
     if results["MEAN_SETTLING_TIME"] < 0:
-        score += 1000000 # Potężna kara za brak stabilizacji
+        score += 1000000
         
     return score

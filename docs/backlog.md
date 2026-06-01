@@ -283,4 +283,32 @@ Optimalization of aim function with bayes search algorithm showed that aim funct
 - penatly for stall went much lower (200 to 26), it means that there was probably no occurrence of destroying coils (high current with no speed)
 - reward for achieving targeted speed went 2.5 times up from nominal. This means training was much better for ITAE score when precision was higher (longer staying in targeted speed), which also it correct with ITAE measurment
 
+
+## Week 2026-05-26 to 2026-06-02
+
 - <span style="color: green;">(DR)</span> Added flags for different noise level (current, voltage, velocity, torgue)
+- <span style="color: green;">(DR)</span> Tested different noise lvl separately. And found val of noise where controling is still accurate each noise:
+```
+Current: even 100A still accurate
+Velocity: 1 rad/s
+Voltage: 0.1 V
+Load: 0.01 N
+```
+- <span style="color: green;">(DR)</span> Tested all noise lvl together on the level where separaely results very accurate:
+```
+Control evaluation:
+ISE: 156569.050
+IAE: 431.743
+ITAE: 2042.760
+ESS: 2.003
+MAX_OVERSHOOT: 45.908 [%]
+MEAN_SETTLING_TIME: 0.8400 [sec]
+```
+<table style="width: 100%; border: none;">
+  <tr>
+    <td align="center" style="border: none;">
+      <img src="diff_noise/all_ok_noise.png" width="600px"><br>
+      <b>Optimally trained model (bayes,aim optimal) for noise in every aspect: Current: even 100A still accurate,Velocity: 1 rad/s,Voltage: 0.1 V, Load: 0.01 N</b>
+    </td>
+  </tr>
+</table>

@@ -1,0 +1,44 @@
+# Current
+## noise = 0.1
+```
+Control evaluation:
+ISE: 175290.800
+IAE: 376.133
+ITAE: 2208.870
+ESS: 0.086
+MAX_OVERSHOOT: 51.236 [%]
+MEAN_SETTLING_TIME: 0.2800 [sec]
+```
+## noise = 1.0
+```
+Control evaluation:
+ISE: 219766.000
+IAE: 354.893
+ITAE: 1377.891
+ESS: 0.102
+MAX_OVERSHOOT: 61.849 [%]
+MEAN_SETTLING_TIME: 0.1600 [sec]
+```
+## noise = 10.0
+```
+Control evaluation:
+ISE: 219879.950
+IAE: 357.247
+ITAE: 1378.498
+ESS: 2.180
+MAX_OVERSHOOT: 62.579 [%]
+MEAN_SETTLING_TIME: 0.2200 [sec]
+
+```
+
+## noise = 100.0
+```
+Control evaluation:
+ISE: 214654.125
+IAE: 436.142
+ITAE: 1835.064
+ESS: 0.071
+MAX_OVERSHOOT: 66.664 [%]
+MEAN_SETTLING_TIME: 0.8000 [sec]
+```
+
