@@ -1,3 +1,13 @@
+# Goal of project:
+The goal of this project is to create AI agent capable of tuning PID controler of electric motor.
+The main purpose of this agent is to observe and react to changing conditions (eg.: load, induction, friction, ect.).
+
+# Code specification:
+  -language: python3
+  -main libraries: control, gymasium, optuna;
+  -aglorithms: PPO, Bayes OPT;  
+
+
 # Backlog of project work
 - <span style="color: green;">(DR)</span> - Dawid Robak
 - <span style="color: blue;">(KS)</span> - Kacper Sułkowski
@@ -19,6 +29,8 @@
 - <span style="color: blue;">(KS)</span> Modified reward function
 - <span style="color: blue;">(KS)</span> Added all observation channels to agent env
 - <span style="color: blue;">(KS)</span> Updated system arch diagram
+Summary / conclusion:
+- Research was done, core of model was created.  
 
 ## Week: 2026-03-18 to 2026-03-24
 - <span style="color: green;">(DR)</span> Extracted reward func in gym env
@@ -29,8 +41,11 @@
 - <span style="color: blue;">(KS)</span> Changed PID integration method
 - <span style="color: blue;">(KS)</span> Added PID anti-windup clipping
 - <span style="color: blue;">(KS)</span> Changed PID output limit to object parameter
-- <span style="color: blue;">(KS)</span> Changed way of calculating ss description from tf transformation to explicite matrixes 
-- <span style="color: blue;">(KS)</span> Replacing calculating current draw with reading it from ss
+- <span style="color: blue;">(KS)</span> Changed way of calculating ss description from tf transformation to explicite matrices 
+- <span style="color: blue;">(KS)</span> Replacing calculating current draw with reading it from ss.
+Summary / conclusion:
+- Created environment for AI agent.
+- Implementation of explicit SS matrices simplified code.
 
 ## Week: 2026-03-25 to 2026-03-31
 - <span style="color: blue;">(KS)</span> Added external torque as model input
@@ -55,6 +70,10 @@
   </tr>
 </table>
 
+Summary / conclusion:
+- Adjusted model parameters to mimic real motor.
+- Stable regulation using non-adaptive pid was achieved.
+- Increased time resolution stabilized the simulation.
 
 
 ## Week: 2026-04-01 to 2026-04-14
@@ -86,6 +105,10 @@
     <td style="border: none;"></td>
   </tr>
 </table>
+
+Summary / conclusion:
+- Switching from continous to discreet time domain accelerated simulation process about 10x.
+- First trainings were conducted but agent behaviour is unstable.
 
 
 ## Week 2026-04-15 to 2026-04-21
@@ -136,6 +159,10 @@
   </tr>
 </table>
 
+Summary / conclusion:
+- Changing way of interaction between agent and PID (direct value -> % change) stabilized behaviour of model.
+- Increasing PID parrameters limits made regulation much faster.
+
 ## Week 2026-04-22 to 2026-04-28
 - <span style="color: green;">(DR)</span> Optimised way of training (now it doesnt save and load model constantly, it creates model,env one time, one time save)
 - <span style="color: green;">(DR)</span> Added normal flags for testing (easy to choose rand sp,load,params etc.)
@@ -143,6 +170,10 @@
 - <span style="color: green;">(DR)</span> Added possibility of training with changing SP, PARAMS, LOAD in one time. After 1/3rd of all iteration it starts to change another thing. From start SP, then PARAMS, then LOAD
 - <span style="color: green;">(DR)</span> Added function to evaluate agent controlling in changing sp environment
 - <span style="color: green;">(DR)</span> Hotfix way of changing floating SP values
+
+Summary / conclusion:
+-Training process consumes much less time because of hotfixes.
+-Performance of model trained in nondeterministic environment hasn't been checked.
 
 ## Week 2026-04-29 to 2026-05-05
 
@@ -165,6 +196,10 @@
   </tr>
 </table>
 
+Summary / conclusion:
+- Performence of agent trained in nondeterministic environment seems to be much better.
+- Introduced adjunstments made regulation tighter.
+
 ## Week 2026-05-06 to 2026-05-12
 
 - <span style="color: green;">(DR)</span> Addd optimalization for learning rate, batch size, n_steps
@@ -182,15 +217,17 @@ most important:
 - n_steps (28%)
 - batch_size (2%)
 
-huge n_steps -> model needs motor to do more steps to be precise in controlling it
-small learning_rate -> model needs to be precise in changing value, it cannot just fastly change values
-small batch_size -> model desn't need to learn on chuge data at once, it need smaller parts of output
 
 ```
 BAYES:
 Best parameters: {'learning_rate': 0.0012678873537958547, 'n_steps': 1024, 'batch_size': 32}
 Best score: 635.6678
 ```
+## Interpretation 
+-huge n_steps -> model needs motor to do more steps to be precise in controlling it
+-small learning_rate -> model needs to be precise in changing value, it cannot just fastly change values
+-small batch_size -> model desn't need to learn on chuge data at once, it need smaller parts of output
+
 
 
 ## Week 2026-05-13 to 2026-05-19
@@ -312,3 +349,10 @@ MEAN_SETTLING_TIME: 0.8400 [sec]
     </td>
   </tr>
 </table>
+
+## Interpretation
+Regulation is still of good quality if standard deviation of noise is not higher than:
+- Current: even 100A still accurate
+- Velocity: 1 rad/s
+- Voltage: 0.1 V
+- Load: 0.01 N
