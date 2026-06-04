@@ -1,4 +1,11 @@
 # Current
+| noise | ITAE | Overshoot [%] |
+| :--- | :--- | :--- |
+| 0.1 | 2208.870 | 51.236 |
+| 1 | 1377.891 | 61.849 |
+| 10 | 1378.498 | 62.579 |
+| 100 | 1835.064 | 66.664 |
+
 ## noise = 0.1
 ```
 Control evaluation:
@@ -41,4 +48,3 @@ ESS: 0.071
 MAX_OVERSHOOT: 66.664 [%]
 MEAN_SETTLING_TIME: 0.8000 [sec]
 ```
-
